@@ -1,0 +1,249 @@
+.satellite-map-container {
+  position: relative;
+  width: 100%;
+  height: 480px;
+  background: radial-gradient(circle at 50% 50%, #0b1329 0%, #020617 100%);
+  border: 1px solid rgba(6, 182, 212, 0.15);
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 0 40px rgba(6, 182, 212, 0.05);
+}
+
+/* Grid overlay background */
+.satellite-map-grid {
+  position: absolute;
+  inset: 0;
+  background-image: 
+    linear-gradient(rgba(6, 182, 212, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(6, 182, 212, 0.05) 1px, transparent 1px);
+  background-size: 30px 30px;
+  background-position: center;
+  pointer-events: none;
+  opacity: 0.8;
+}
+
+/* Cyber coordinates display */
+.map-coords-display {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  font-family: monospace;
+  font-size: 0.75rem;
+  color: var(--accent-cyan);
+  background: rgba(15, 23, 42, 0.75);
+  border: 1px solid rgba(6, 182, 212, 0.3);
+  padding: 5px 10px;
+  border-radius: 6px;
+  pointer-events: none;
+  z-index: 10;
+  backdrop-filter: blur(5px);
+}
+
+.map-status-pill {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  font-family: inherit;
+  font-size: 0.8rem;
+  padding: 5px 12px;
+  border-radius: 20px;
+  z-index: 10;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  backdrop-filter: blur(5px);
+}
+
+.status-idle {
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  color: var(--accent-emerald);
+}
+
+.status-active {
+  background: rgba(244, 63, 94, 0.15);
+  border: 1px solid rgba(244, 63, 94, 0.4);
+  color: var(--accent-rose);
+  animation: pulse-border 1.5s infinite;
+}
+
+@keyframes pulse-border {
+  0% { border-color: rgba(244, 63, 94, 0.4); box-shadow: 0 0 5px rgba(244, 63, 94, 0.2); }
+  50% { border-color: rgba(244, 63, 94, 0.8); box-shadow: 0 0 15px rgba(244, 63, 94, 0.4); }
+  100% { border-color: rgba(244, 63, 94, 0.4); box-shadow: 0 0 5px rgba(244, 63, 94, 0.2); }
+}
+
+/* User search panel inside map overlay */
+.map-search-overlay {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  right: 20px;
+  z-index: 10;
+  display: flex;
+  gap: 10px;
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 10px;
+  backdrop-filter: blur(10px);
+}
+
+@media (max-width: 576px) {
+  .map-search-overlay {
+    flex-direction: column;
+  }
+}
+
+.map-search-input {
+  flex: 1;
+  background: rgba(2, 6, 23, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #fff;
+  border-radius: 8px;
+  padding: 10px 16px;
+  font-family: inherit;
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.map-search-input:focus {
+  border-color: var(--accent-cyan);
+  box-shadow: 0 0 10px rgba(6, 182, 212, 0.2);
+}
+
+.map-trigger-btn {
+  background: linear-gradient(135deg, var(--accent-rose), #f59e0b);
+  border: none;
+  color: white;
+  font-weight: 600;
+  border-radius: 8px;
+  padding: 10px 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: transform 0.15s, box-shadow 0.2s;
+}
+
+.map-trigger-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px rgba(244, 63, 94, 0.4);
+}
+
+.map-trigger-btn:active {
+  transform: translateY(0);
+}
+
+.map-reset-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: white;
+  font-weight: 600;
+  border-radius: 8px;
+  padding: 10px 15px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.map-reset-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+/* Base India Map Glow & Elements */
+.map-viewport-wrapper {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.futuristic-india-map {
+  width: 90%;
+  height: 80%;
+  max-width: 500px;
+  max-height: 400px;
+  transition: transform 1.5s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.map-glow-underlay {
+  filter: drop-shadow(0 0 25px rgba(6, 182, 212, 0.35));
+}
+
+.map-mesh-line {
+  stroke: rgba(6, 182, 212, 0.2);
+  stroke-width: 0.75;
+  stroke-dasharray: 4 4;
+}
+
+.map-boundary {
+  stroke: var(--accent-cyan);
+  stroke-width: 1.5;
+  filter: drop-shadow(0 0 4px rgba(6, 182, 212, 0.5));
+}
+
+/* Pulsing cyber-nodes */
+.map-node {
+  fill: var(--accent-cyan);
+  filter: drop-shadow(0 0 5px var(--accent-cyan));
+}
+
+.map-node-pulse {
+  fill: none;
+  stroke: var(--accent-cyan);
+  stroke-width: 1;
+}
+
+/* Satellite Specifics */
+.satellite-laser-beam {
+  stroke: url(#laser-gradient);
+  stroke-width: 3.5;
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 10px var(--accent-rose));
+}
+
+/* Detailed glass stats overlay card */
+.target-analysis-overlay {
+  position: absolute;
+  top: 75px;
+  left: 20px;
+  width: 250px;
+  z-index: 10;
+  border: 1px solid rgba(244, 63, 94, 0.25);
+  box-shadow: 0 8px 32px rgba(244, 63, 94, 0.15);
+}
+
+.target-analysis-header {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 10px 15px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.target-analysis-body {
+  padding: 15px;
+  font-family: inherit;
+  font-size: 0.85rem;
+}
+
+.stat-item-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.stat-item-label {
+  color: var(--text-muted);
+}
+
+.stat-item-value {
+  font-weight: 600;
+  color: var(--text-main);
+}
