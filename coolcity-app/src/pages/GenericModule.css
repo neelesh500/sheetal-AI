@@ -1,0 +1,139 @@
+.module-container {
+    padding: 2rem;
+    height: 100%;
+    overflow-y: auto;
+    background: radial-gradient(circle at top right, rgba(0, 240, 255, 0.05), transparent 40%);
+}
+
+.module-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 2rem;
+}
+
+.module-title-box {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.module-main-icon {
+    color: #00f0ff;
+    filter: drop-shadow(0 0 10px rgba(0, 240, 255, 0.4));
+}
+
+.module-title-box h1 {
+    font-size: 2rem;
+    margin-bottom: 0.25rem;
+    color: #fff;
+}
+
+.module-title-box p {
+    color: #94a3b8;
+    font-size: 0.9rem;
+}
+
+.module-actions {
+    display: flex;
+    gap: 1rem;
+}
+
+.action-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #fff;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.9rem;
+}
+
+.action-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.action-btn.primary {
+    background: rgba(0, 240, 255, 0.1);
+    border-color: rgba(0, 240, 255, 0.4);
+    color: #00f0ff;
+}
+
+.action-btn.primary:hover {
+    background: rgba(0, 240, 255, 0.2);
+    box-shadow: 0 0 15px rgba(0, 240, 255, 0.3);
+}
+
+.module-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.module-card {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.badge {
+    font-size: 0.7rem;
+    padding: 0.2rem 0.5rem;
+    background: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    border-radius: 4px;
+    text-transform: uppercase;
+}
+
+.card-btn {
+    margin-top: auto;
+    align-self: flex-start;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: transparent;
+    border: none;
+    color: #00f0ff;
+    cursor: pointer;
+    font-size: 0.85rem;
+    padding: 0;
+}
+
+.card-btn:hover {
+    text-decoration: underline;
+}
+
+.module-main-content {
+    min-height: 400px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px dashed rgba(255, 255, 255, 0.1);
+}
+
+.placeholder-chart {
+    text-align: center;
+    color: #475569;
+}
+
+.placeholder-chart p {
+    font-size: 1.25rem;
+    margin-bottom: 0.5rem;
+}
+
+.placeholder-chart span {
+    font-size: 0.85rem;
+}

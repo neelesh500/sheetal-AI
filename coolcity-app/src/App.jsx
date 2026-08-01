@@ -2,14 +2,12 @@ import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-route
 import { AnimatePresence } from 'framer-motion';
 
 // Layout
-import Navbar from './components/Navbar';
+import MainLayout from './components/MainLayout';
 
 // Pages
-import Home from './pages/Home';
-import HeatMap from './pages/HeatMap';
-import DriverAnalysis from './pages/DriverAnalysis';
-import ScenarioSimulator from './pages/ScenarioSimulator';
-import Methodology from './pages/Methodology';
+import SpaceDashboard from './pages/SpaceDashboard';
+import GenericModule from './pages/GenericModule';
+import { routesConfig } from './components/Sidebar';
 
 function AnimatedRoutes() {
   const location = useLocation();
@@ -17,11 +15,14 @@ function AnimatedRoutes() {
   return (
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
-        <Route path="/" element={<Home />} />
-        <Route path="/heatmap" element={<HeatMap />} />
-        <Route path="/analysis" element={<DriverAnalysis />} />
-        <Route path="/simulator" element={<ScenarioSimulator />} />
-        <Route path="/methodology" element={<Methodology />} />
+        <Route path="/" element={<SpaceDashboard />} />
+        {routesConfig.filter(r => r.path !== '/').map(route => (
+          <Route
+            key={route.path}
+            path={route.path}
+            element={<GenericModule title={route.label} icon={route.icon} />}
+          />
+        ))}
       </Routes>
     </AnimatePresence>
   );
@@ -30,8 +31,9 @@ function AnimatedRoutes() {
 function App() {
   return (
     <Router>
-      <Navbar />
-      <AnimatedRoutes />
+      <MainLayout>
+        <AnimatedRoutes />
+      </MainLayout>
     </Router>
   );
 }
