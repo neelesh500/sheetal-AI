@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { HashRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 
 // Layout
@@ -30,7 +30,7 @@ function AnimatedRoutes() {
 
 function App() {
   return (
-    <Router basename="/sheetal-AI">
+    <Router>
       <MainLayout>
         <AnimatedRoutes />
       </MainLayout>
