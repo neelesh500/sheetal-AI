@@ -30,7 +30,7 @@ function AnimatedRoutes() {
 
 function App() {
   return (
-    <Router>
+    <Router basename="/sheetal-AI">
       <MainLayout>
         <AnimatedRoutes />
       </MainLayout>
