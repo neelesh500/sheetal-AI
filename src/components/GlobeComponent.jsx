@@ -1,11 +1,14 @@
 import React, { useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { Sphere, Stars } from '@react-three/drei';
+import { Sphere, Stars, useTexture } from '@react-three/drei';
 import * as THREE from 'three';
 
 export default function GlobeComponent({ onHotspotClick }) {
     const earthRef = useRef();
     const cloudsRef = useRef();
+
+    // Load local texture specifically to fix 'blue ball' UI issue
+    const [colorMap] = useTexture([`${import.meta.env.BASE_URL}earth-blue-marble.jpg`]);
 
     // Calculate 3D position from Lat/Lng
     const getPositionFromLatLng = (lat, lng, radius) => {
@@ -74,9 +77,7 @@ export default function GlobeComponent({ onHotspotClick }) {
                 {/* Solid Globe with Texture - Clickable Anywhere */}
                 <Sphere args={[2.5, 64, 64]} onClick={handleGlobeClick} onPointerOver={(e) => { document.body.style.cursor = 'crosshair'; }} onPointerOut={(e) => { document.body.style.cursor = 'auto'; }}>
                     <meshStandardMaterial
-                        color="#1d4ed8"
-                        emissive="#0f172a"
-                        emissiveIntensity={0.4}
+                        map={colorMap}
                         roughness={0.6}
                         metalness={0.1}
                     />
