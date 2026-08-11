@@ -4,7 +4,7 @@ import react from '@vitejs/plugin-react'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
-  base: './', // Vercel aur GitHub Pages dono ke liye relative asset paths ensure karega
+  base: '/', // Vercel SPA routing require base '/'
   build: {
     rollupOptions: {
       output: {
