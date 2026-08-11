@@ -1,21 +1,29 @@
+import React, { Suspense, lazy } from 'react';
 import { HashRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 
-// Layout
+// Layout (MainLayout ko directly import karenge kyunki ye pehla load hota hai)
 import MainLayout from './components/MainLayout';
-
-// Pages
-import SpaceDashboard from './pages/SpaceDashboard';
-import GenericModule from './pages/GenericModule';
-import HeatMap from './pages/HeatMap';
-import DriverAnalysis from './pages/DriverAnalysis';
-import ScenarioSimulator from './pages/ScenarioSimulator';
-import Methodology from './pages/Methodology';
-import Home from './pages/Home';
-import SatelliteFeeds from './pages/SatelliteFeeds';
-import AiPrediction from './pages/AiPrediction';
-import MitigationPlan from './pages/MitigationPlan';
 import { routesConfig } from './components/Sidebar';
+
+// Pages Lazy Loading (Code Splitting - Ab ye alag file chunks me server se fetch honge)
+const SpaceDashboard = lazy(() => import('./pages/SpaceDashboard'));
+const GenericModule = lazy(() => import('./pages/GenericModule'));
+const HeatMap = lazy(() => import('./pages/HeatMap'));
+const DriverAnalysis = lazy(() => import('./pages/DriverAnalysis'));
+const ScenarioSimulator = lazy(() => import('./pages/ScenarioSimulator'));
+const Methodology = lazy(() => import('./pages/Methodology'));
+const Home = lazy(() => import('./pages/Home'));
+const SatelliteFeeds = lazy(() => import('./pages/SatelliteFeeds'));
+const AiPrediction = lazy(() => import('./pages/AiPrediction'));
+const MitigationPlan = lazy(() => import('./pages/MitigationPlan'));
+
+// Simple loading fallback custom loading UI ke liye
+const PageLoader = () => (
+  <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', minHeight: '50vh', color: '#00c2ff' }}>
+    <div className="loader-element">Loading Module...</div>
+  </div>
+);
 
 const componentsMap = {
   '/mapping': HeatMap,
@@ -33,14 +41,14 @@ function AnimatedRoutes() {
   return (
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
-        <Route path="/" element={<SpaceDashboard />} />
+        <Route path="/" element={<Suspense fallback={<PageLoader />}><SpaceDashboard /></Suspense>} />
 
         {/* Legacy mappings from older app connections */}
-        <Route path="/heatmap" element={<HeatMap />} />
-        <Route path="/analysis" element={<DriverAnalysis />} />
-        <Route path="/methodology" element={<Methodology />} />
-        <Route path="/home" element={<Home />} />
-        <Route path="/scenario" element={<ScenarioSimulator />} />
+        <Route path="/heatmap" element={<Suspense fallback={<PageLoader />}><HeatMap /></Suspense>} />
+        <Route path="/analysis" element={<Suspense fallback={<PageLoader />}><DriverAnalysis /></Suspense>} />
+        <Route path="/methodology" element={<Suspense fallback={<PageLoader />}><Methodology /></Suspense>} />
+        <Route path="/home" element={<Suspense fallback={<PageLoader />}><Home /></Suspense>} />
+        <Route path="/scenario" element={<Suspense fallback={<PageLoader />}><ScenarioSimulator /></Suspense>} />
 
         {routesConfig.filter(r => r.path !== '/').map(route => {
           const ComponentToRender = componentsMap[route.path] || GenericModule;
@@ -48,12 +56,20 @@ function AnimatedRoutes() {
             <Route
               key={route.path}
               path={route.path}
-              element={<ComponentToRender title={route.label} icon={route.icon} />}
+              element={
+                <Suspense fallback={<PageLoader />}>
+                  <ComponentToRender title={route.label} icon={route.icon} />
+                </Suspense>
+              }
             />
           );
         })}
         {/* Fallback 404 */}
-        <Route path="*" element={<GenericModule title="404 - Not Found" description="The requested module does not exist in the platform registry." />} />
+        <Route path="*" element={
+          <Suspense fallback={<PageLoader />}>
+            <GenericModule title="404 - Not Found" description="The requested module does not exist in the platform registry." />
+          </Suspense>
+        } />
       </Routes>
     </AnimatePresence>
   );

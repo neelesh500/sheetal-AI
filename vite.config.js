@@ -4,5 +4,29 @@ import react from '@vitejs/plugin-react'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
-  base: '/sheetal-AI/',
+  base: process.env.VERCEL ? '/' : '/sheetal-AI/',
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            if (id.includes('react') || id.includes('react-dom')) {
+              return 'vendor-react';
+            }
+            if (id.includes('framer-motion')) {
+              return 'vendor-framer-motion';
+            }
+            if (id.includes('lucide-react')) {
+              return 'vendor-lucide';
+            }
+            if (id.includes('react-router-dom') || id.includes('@remix-run')) {
+              return 'vendor-router';
+            }
+            return 'vendor'; // Baki saare bache hue npm packages ke liye
+          }
+        }
+      }
+    },
+    chunkSizeWarningLimit: 600, // Bundle size warning ko 500kb se 600kb limit kar diya gaya hai optional optimization
+  }
 })
