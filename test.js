@@ -1,0 +1,1 @@
+const puppeteer = require('puppeteer'); (async () = const browser = await puppeteer.launch(); const page = await browser.newPage(); page.on('console', msg =, msg.text())); page.on('pageerror', err =, err.message)); await page.goto('https://neelesh500.github.io/sheetal-AI/', {waitUntil: 'networkidle0'}); await browser.close(); })();  
