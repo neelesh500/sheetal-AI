@@ -4,7 +4,7 @@ import react from '@vitejs/plugin-react'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
-  base: process.env.VERCEL ? '/' : '/sheetal-AI/',
+  base: './', // Vercel aur GitHub Pages dono ke liye relative asset paths ensure karega
   build: {
     rollupOptions: {
       output: {
@@ -27,6 +27,6 @@ export default defineConfig({
         }
       }
     },
-    chunkSizeWarningLimit: 600, // Bundle size warning ko 500kb se 600kb limit kar diya gaya hai optional optimization
+    chunkSizeWarningLimit: 600, // Bundle size warning limit 500kb se increase karke 600kb kar diya hai
   }
 })
