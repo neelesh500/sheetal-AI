@@ -43,21 +43,26 @@ export default function SatelliteFeeds() {
                         </div>
                         <div style={{ position: 'relative', width: '100%', height: '300px', backgroundColor: '#000', borderRadius: '8px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.05)' }}>
                             <img
-                                src="https://images.unsplash.com/photo-1614730321146-b6fa6a46bcb4?auto=format&fit=crop&q=80&w=800"
-                                alt="Earth from Space"
-                                style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.8 }}
+                                src="https://images.unsplash.com/photo-1542361345-89e58247f2d5?auto=format&fit=crop&q=80&w=1000"
+                                alt="Cyberpunk HUD Thermal Map"
+                                style={{ width: '100%', height: '100%', objectFit: 'cover', filter: 'sepia(1) hue-rotate(180deg) saturate(3) brightness(1.2)', opacity: 0.9 }}
                             />
 
                             {/* Radar Sweep / Satellite Pass */}
                             <motion.div
                                 animate={{ top: ['-10%', '110%'] }}
                                 transition={{ duration: 5, repeat: Infinity, ease: 'linear' }}
-                                style={{ position: 'absolute', width: '100%', height: '40px', background: 'linear-gradient(to bottom, transparent, rgba(16,185,129,0.2), rgba(16,185,129,0.5))', boxShadow: '0 5px 15px rgba(16,185,129,0.4)', top: 0, zIndex: 2 }}
+                                style={{ position: 'absolute', width: '100%', height: '40px', background: 'linear-gradient(to bottom, transparent, rgba(6,182,212,0.2), rgba(6,182,212,0.6))', boxShadow: '0 5px 20px rgba(6,182,212,0.5)', top: 0, zIndex: 2 }}
                             />
 
-                            <div style={{ position: 'absolute', bottom: '15px', right: '15px', textAlign: 'right', background: 'rgba(0,0,0,0.6)', padding: '8px 12px', borderRadius: '8px', backdropFilter: 'blur(4px)' }}>
-                                <p style={{ fontSize: '0.75rem', color: '#10b981', margin: 0, fontFamily: 'monospace', fontWeight: 'bold' }}>OCM-3 SWATH ACTIVE</p>
-                                <p style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.8)', margin: 0, fontFamily: 'monospace' }}>LAT: 28.61° N, LNG: 77.20° E</p>
+                            {/* Sci-Fi HUD Crosshair */}
+                            <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '60px', height: '60px', border: '2px solid rgba(6,182,212,0.5)', borderRadius: '50%', zIndex: 3, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                <motion.div animate={{ rotate: 360 }} transition={{ duration: 10, repeat: Infinity, ease: 'linear' }} style={{ width: '80%', height: '80%', border: '1px dashed #06b6d4', borderRadius: '50%' }} />
+                            </div>
+
+                            <div style={{ position: 'absolute', bottom: '15px', right: '15px', textAlign: 'right', background: 'rgba(0,0,0,0.8)', padding: '8px 12px', borderRadius: '8px', border: '1px solid rgba(6,182,212,0.3)', backdropFilter: 'blur(4px)', zIndex: 4 }}>
+                                <p style={{ fontSize: '0.75rem', color: '#06b6d4', margin: 0, fontFamily: 'monospace', fontWeight: 'bold' }}>TARGET LOCK ACQUIRED</p>
+                                <p style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.8)', margin: 0, fontFamily: 'monospace' }}>UPLINK: ACTIVE • SECTOR 7</p>
                             </div>
                         </div>
                         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', color: '#64748b' }}>

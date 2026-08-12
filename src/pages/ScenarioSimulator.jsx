@@ -26,7 +26,7 @@ export default function ScenarioSimulator() {
   const handleSimulate = () => {
     setIsSimulating(true);
     setResultReady(false);
-    
+
     setTimeout(() => {
       setIsSimulating(false);
       setResultReady(true);
@@ -36,7 +36,7 @@ export default function ScenarioSimulator() {
   return (
     <AnimatedPage>
       <div className="container">
-        <motion.div 
+        <motion.div
           className="header-section"
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -49,7 +49,7 @@ export default function ScenarioSimulator() {
         </motion.div>
 
         <div className="grid-2">
-          <motion.div 
+          <motion.div
             style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
@@ -98,9 +98,9 @@ export default function ScenarioSimulator() {
                   </span>
                 </div>
 
-                <AnimatedButton 
-                  variant="primary" 
-                  onClick={handleSimulate} 
+                <AnimatedButton
+                  variant="primary"
+                  onClick={handleSimulate}
                   className={isSimulating ? 'simulating' : ''}
                 >
                   {isSimulating ? (
@@ -127,7 +127,7 @@ export default function ScenarioSimulator() {
             </div>
           </motion.div>
 
-          <motion.div 
+          <motion.div
             className="glass-panel"
             style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', position: 'relative', overflow: 'hidden' }}
             initial={{ opacity: 0, x: 20 }}
@@ -135,11 +135,16 @@ export default function ScenarioSimulator() {
             transition={{ delay: 0.3 }}
           >
             <h3 style={{ marginBottom: '1rem' }}>Simulation Results</h3>
-            
-            <div className="mock-map enhanced-map" style={{ flex: 1, minHeight: '250px', marginBottom: '1.5rem' }}>
+
+            <div className="mock-map enhanced-map" style={{ flex: 1, minHeight: '300px', marginBottom: '1.5rem', background: '#000' }}>
+              <img
+                src="https://images.unsplash.com/photo-1524661135-423995f22d0b?auto=format&fit=crop&q=80&w=1000"
+                alt="City Aerial Satellite"
+                style={{ position: 'absolute', width: '100%', height: '100%', objectFit: 'cover', opacity: 0.5, filter: 'grayscale(100%) contrast(1.2)' }}
+              />
               <AnimatePresence>
                 {isSimulating && (
-                  <motion.div 
+                  <motion.div
                     initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                     className="sim-overlay"
                   >
@@ -156,26 +161,29 @@ export default function ScenarioSimulator() {
                 )}
               </AnimatePresence>
 
-              <motion.div 
-                style={{ position: 'absolute', inset: 0, background: 'radial-gradient(circle at 50% 50%, rgba(244, 63, 94, 0.4) 0%, transparent 60%)' }}
-                animate={{ opacity: resultReady ? 0.1 : 1 }}
+              <motion.div
+                style={{ position: 'absolute', inset: 0, background: 'radial-gradient(circle at 50% 50%, rgba(244, 63, 94, 0.6) 0%, transparent 60%)', mixBlendMode: 'screen' }}
+                animate={{ opacity: resultReady ? 0.2 : 1, scale: resultReady ? 0.9 : 1 }}
                 transition={{ duration: 1.5 }}
               />
-              
+
               <AnimatePresence>
                 {resultReady && (
-                  <motion.div 
-                    initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+                  <motion.div
+                    initial={{ opacity: 0, scale: 1.1 }} animate={{ opacity: 1, scale: 1 }}
                     transition={{ duration: 1.5 }}
-                    style={{ position: 'absolute', inset: 0, background: 'radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.3) 0%, transparent 60%)' }}
-                  />
+                    style={{ position: 'absolute', inset: 0, background: 'radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.5) 0%, transparent 70%)', mixBlendMode: 'screen' }}
+                  >
+                    {/* Add some techy scanning lines */}
+                    <motion.div animate={{ top: ['0%', '100%', '0%'] }} transition={{ duration: 8, repeat: Infinity, ease: 'linear' }} style={{ position: 'absolute', width: '100%', height: '2px', background: 'rgba(16,185,129,0.8)', boxShadow: '0 0 10px #10b981' }} />
+                  </motion.div>
                 )}
               </AnimatePresence>
             </div>
 
             <AnimatePresence>
               {resultReady && (
-                <motion.div 
+                <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   className="sim-result-panel"

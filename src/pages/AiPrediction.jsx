@@ -64,9 +64,9 @@ export default function AiPrediction() {
                     {/* Real Image Placeholder */}
                     <div style={{ position: 'relative', height: '400px', width: '100%' }}>
                         <img
-                            src="https://images.unsplash.com/photo-1620712943543-bcc4688e7485?auto=format&fit=crop&q=80&w=1200"
+                            src="https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&q=80&w=1200"
                             alt="Neural Network"
-                            style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.7, mixBlendMode: 'screen' }}
+                            style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.9, mixBlendMode: 'plus-lighter', filter: 'brightness(1.2) contrast(1.3) hue-rotate(45deg)' }}
                         />
 
                         {/* Overlay scanline effect over image */}
