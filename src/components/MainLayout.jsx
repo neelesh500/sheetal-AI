@@ -6,7 +6,7 @@ export default function MainLayout({ children }) {
     return (
         <div style={{ display: 'flex', width: '100vw', height: '100vh', overflow: 'hidden', background: '#020617' }}>
             <Sidebar />
-            <div style={{ flex: 1, marginLeft: '260px', position: 'relative' }}>
+            <div style={{ flex: 1, marginLeft: '260px', position: 'relative', overflowY: 'auto', overflowX: 'hidden' }}>
                 {children}
             </div>
             <Toaster

@@ -54,8 +54,8 @@ export default function GenericModule({ title, icon: Icon, description }) {
                 ))}
             </div>
 
-            <div className="module-main-content glass-panel" style={{ padding: '2rem', marginTop: '2rem' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+            <div className="module-main-content glass-panel" style={{ padding: '0', marginTop: '2rem', overflow: 'hidden' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1.25rem 2rem', background: 'rgba(2, 6, 23, 0.6)' }}>
                     <h3 style={{ margin: 0, fontFamily: 'monospace', letterSpacing: '1px' }}>Global Feed Analytics</h3>
                     <div style={{ display: 'flex', gap: '8px' }}>
                         <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#0ea5e9', display: 'inline-block' }}></span>
@@ -64,35 +64,23 @@ export default function GenericModule({ title, icon: Icon, description }) {
                     </div>
                 </div>
 
-                <div style={{ position: 'relative', height: '250px', display: 'flex', alignItems: 'flex-end', gap: '8px', padding: '1rem', background: '#090d16', borderRadius: '8px', overflow: 'hidden' }}>
-                    {/* Background Grid */}
-                    <div style={{ position: 'absolute', inset: 0, backgroundImage: 'linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px)', backgroundSize: '40px 40px', zIndex: 0 }}></div>
+                <div style={{ position: 'relative', height: '400px', width: '100%', background: '#090d16' }}>
+                    <img
+                        src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=1200"
+                        alt="Data Dashboard"
+                        style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.65, mixBlendMode: 'luminosity' }}
+                    />
 
-                    {/* Animated Line Chart (SVG) */}
-                    <svg style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: 1, pointerEvents: 'none' }}>
-                        <motion.path
-                            d="M 0 200 C 100 100, 200 250, 300 150 S 500 200, 600 50 S 800 150, 1000 100 L 1000 250 L 0 250 Z"
-                            fill="rgba(14, 165, 233, 0.1)"
-                            stroke="rgba(14, 165, 233, 0.5)"
-                            strokeWidth="2"
-                            animate={{ opacity: [0.5, 1, 0.5] }}
-                            transition={{ duration: 4, repeat: Infinity }}
-                        />
-                    </svg>
+                    <div style={{ position: 'absolute', inset: 0, backgroundImage: 'linear-gradient(rgba(14,165,233,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(14,165,233,0.1) 1px, transparent 1px)', backgroundSize: '40px 40px', zIndex: 1 }}></div>
 
-                    {/* Animated Data Bars */}
-                    {[...Array(24)].map((_, i) => (
-                        <motion.div
-                            key={i}
-                            animate={{ height: [`${20 + Math.random() * 40}%`, `${30 + Math.random() * 60}%`, `${20 + Math.random() * 40}%`] }}
-                            transition={{ duration: 2 + Math.random() * 2, repeat: Infinity, ease: 'easeInOut', delay: i * 0.1 }}
-                            style={{ flex: 1, backgroundColor: 'rgba(14, 165, 233, 0.8)', borderTop: '2px solid #38bdf8', borderRadius: '4px 4px 0 0', opacity: 0.8, zIndex: 2 }}
-                        />
-                    ))}
+                    <div style={{ position: 'absolute', top: '20px', left: '20px', background: 'rgba(0,0,0,0.7)', padding: '15px 20px', borderRadius: '12px', zIndex: 2, border: '1px solid rgba(14,165,233,0.3)', backdropFilter: 'blur(5px)' }}>
+                        <span style={{ fontSize: '2.5rem', fontWeight: 'bold', color: '#38bdf8', display: 'block', lineHeight: 1 }}>48,290</span>
+                        <p style={{ margin: '5px 0 0 0', fontSize: '0.85rem', color: '#94a3b8', letterSpacing: '1px' }}>ACTIVE SENSOR NODES</p>
+                    </div>
 
-                    <div style={{ position: 'absolute', top: '10px', right: '15px', zIndex: 3 }}>
-                        <span style={{ fontSize: '2rem', fontWeight: 'bold', color: '#38bdf8' }}>48,290</span>
-                        <p style={{ margin: 0, fontSize: '0.8rem', color: '#94a3b8', textAlign: 'right' }}>Active Datapoints</p>
+                    <div style={{ position: 'absolute', bottom: '20px', right: '20px', background: 'rgba(0,0,0,0.7)', padding: '15px 20px', borderRadius: '12px', zIndex: 2, border: '1px solid rgba(244,63,94,0.3)', backdropFilter: 'blur(5px)' }}>
+                        <span style={{ fontSize: '2.5rem', fontWeight: 'bold', color: '#f43f5e', display: 'block', lineHeight: 1 }}>+12.4%</span>
+                        <p style={{ margin: '5px 0 0 0', fontSize: '0.85rem', color: '#94a3b8', letterSpacing: '1px' }}>THERMAL DELTA SHIFT</p>
                     </div>
                 </div>
             </div>

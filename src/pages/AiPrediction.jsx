@@ -53,55 +53,31 @@ export default function AiPrediction() {
                     </motion.div>
                 </div>
 
-                <div className="glass-panel" style={{ padding: '2rem', marginTop: '2rem' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <h3>Deep Neural Network Topology</h3>
-                        <span className="badge badge-success" style={{ animation: 'pulse 2s infinite' }}>● Live Inference</span>
+                <div className="glass-panel" style={{ padding: '0', marginTop: '2rem', overflow: 'hidden', position: 'relative' }}>
+                    <div style={{ padding: '2rem', position: 'relative', zIndex: 2, background: 'linear-gradient(to bottom, rgba(3,7,18,0.9) 0%, rgba(3,7,18,0.4) 100%)' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <h3>Deep Neural Network Topology</h3>
+                            <span className="badge badge-success" style={{ animation: 'pulse 2s infinite' }}>● Live Inference</span>
+                        </div>
                     </div>
-                    <div style={{ position: 'relative', height: '350px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'radial-gradient(circle at center, #0a1128 0%, #030712 100%)', borderRadius: '12px', marginTop: '1rem', padding: '2rem 4rem', overflow: 'hidden', border: '1px solid rgba(6,182,212,0.1)' }}>
 
-                        {/* Background Data Stream Effect */}
-                        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundImage: 'linear-gradient(rgba(6,182,212,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(6,182,212,0.03) 1px, transparent 1px)', backgroundSize: '20px 20px', zIndex: 0 }} />
+                    {/* Real Image Placeholder */}
+                    <div style={{ position: 'relative', height: '400px', width: '100%' }}>
+                        <img
+                            src="https://images.unsplash.com/photo-1620712943543-bcc4688e7485?auto=format&fit=crop&q=80&w=1200"
+                            alt="Neural Network"
+                            style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.7, mixBlendMode: 'screen' }}
+                        />
 
-                        {/* Neural Network Nodes */}
-                        {[[1, 2, 3, 4], [1, 2, 3, 4, 5, 6], [1, 2, 3, 4, 5], [1, 2, 3]].map((layer, layerIndex) => (
-                            <div key={`layer-${layerIndex}`} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', zIndex: 1 }}>
-                                {layer.map((node, nodeIndex) => (
-                                    <motion.div
-                                        key={`node-${layerIndex}-${nodeIndex}`}
-                                        initial={{ opacity: 0, scale: 0 }}
-                                        animate={{ opacity: 1, scale: 1 }}
-                                        transition={{ delay: (layerIndex * 0.2) + (nodeIndex * 0.1), type: 'spring' }}
-                                        style={{
-                                            width: '24px', height: '24px',
-                                            borderRadius: '50%',
-                                            background: layerIndex === 0 ? 'rgba(56,189,248,0.2)' : layerIndex === 3 ? 'rgba(239,68,68,0.2)' : 'rgba(168,85,247,0.2)',
-                                            border: `2px solid ${layerIndex === 0 ? '#38bdf8' : layerIndex === 3 ? '#ef4444' : '#a855f7'}`,
-                                            boxShadow: `0 0 15px ${layerIndex === 0 ? 'rgba(56,189,248,0.5)' : layerIndex === 3 ? 'rgba(239,68,68,0.5)' : 'rgba(168,85,247,0.5)'}`,
-                                            position: 'relative'
-                                        }}
-                                    >
-                                        <motion.div
-                                            animate={{ opacity: [0.2, 1, 0.2] }}
-                                            transition={{ duration: 1.5 + Math.random(), repeat: Infinity, delay: Math.random() }}
-                                            style={{ position: 'absolute', inset: '2px', borderRadius: '50%', background: 'white' }}
-                                        />
-                                    </motion.div>
-                                ))}
-                            </div>
-                        ))}
+                        {/* Overlay scanline effect over image */}
+                        <motion.div
+                            animate={{ top: ['0%', '100%', '0%'] }}
+                            transition={{ duration: 4, repeat: Infinity, ease: 'linear' }}
+                            style={{ position: 'absolute', width: '100%', height: '5px', background: 'rgba(56, 189, 248, 0.8)', boxShadow: '0 0 20px rgba(56, 189, 248, 1)', zIndex: 3 }}
+                        />
 
-                        {/* Connecting Lines (Simulated with absolute SVG) */}
-                        <svg style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: 0, pointerEvents: 'none', opacity: 0.4 }}>
-                            <g stroke="rgba(168,85,247,0.3)" strokeWidth="1.5" fill="none">
-                                <motion.path d="M 120 100 Q 250 150 380 120 T 640 170" animate={{ strokeDashoffset: [1000, 0] }} strokeDasharray="5,5" transition={{ duration: 20, repeat: Infinity, ease: "linear" }} />
-                                <motion.path d="M 120 180 Q 250 120 380 180 T 640 170" animate={{ strokeDashoffset: [1000, 0] }} strokeDasharray="5,5" transition={{ duration: 15, repeat: Infinity, ease: "linear" }} />
-                                <motion.path d="M 120 260 Q 300 250 380 200 T 640 170" animate={{ strokeDashoffset: [1000, 0] }} strokeDasharray="5,5" transition={{ duration: 18, repeat: Infinity, ease: "linear" }} />
-                            </g>
-                        </svg>
-
-                        <div style={{ position: 'absolute', bottom: '15px', left: '50%', transform: 'translateX(-50%)', background: 'rgba(0,0,0,0.6)', padding: '5px 15px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.1)' }}>
-                            <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.75rem', margin: 0, letterSpacing: '1px' }}>TENSOR FLOW EDGE • REAL-TIME INFERENCE STREAM</p>
+                        <div style={{ position: 'absolute', bottom: '20px', left: '50%', transform: 'translateX(-50%)', background: 'rgba(0,0,0,0.8)', padding: '8px 20px', borderRadius: '30px', border: '1px solid rgba(56,189,248,0.3)', zIndex: 4, backdropFilter: 'blur(5px)' }}>
+                            <p style={{ color: '#38bdf8', fontSize: '0.85rem', margin: 0, letterSpacing: '2px', fontWeight: 'bold' }}>TENSOR FLOW EDGE • REAL-TIME INFERENCE STREAM</p>
                         </div>
                     </div>
                 </div>

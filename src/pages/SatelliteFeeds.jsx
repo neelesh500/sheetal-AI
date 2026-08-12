@@ -41,40 +41,23 @@ export default function SatelliteFeeds() {
                             </h3>
                             <span className="badge badge-stable">Live Uplink</span>
                         </div>
-                        <div style={{ position: 'relative', width: '100%', height: '300px', backgroundColor: '#090d16', borderRadius: '8px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.05)' }}>
-                            {/* Scanning effect */}
-                            <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', background: 'linear-gradient(rgba(6,182,212,0.1) 1px, transparent 1px) 0 0 / 20px 20px, linear-gradient(90deg, rgba(6,182,212,0.1) 1px, transparent 1px) 0 0 / 20px 20px' }}></div>
+                        <div style={{ position: 'relative', width: '100%', height: '300px', backgroundColor: '#000', borderRadius: '8px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.05)' }}>
+                            <img
+                                src="https://images.unsplash.com/photo-1614730321146-b6fa6a46bcb4?auto=format&fit=crop&q=80&w=800"
+                                alt="Earth from Space"
+                                style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.8 }}
+                            />
 
                             {/* Radar Sweep / Satellite Pass */}
                             <motion.div
                                 animate={{ top: ['-10%', '110%'] }}
-                                transition={{ duration: 3, repeat: Infinity, ease: 'linear' }}
-                                style={{ position: 'absolute', width: '100%', height: '40px', background: 'linear-gradient(to bottom, transparent, rgba(16,185,129,0.4), rgba(16,185,129,0.8))', boxShadow: '0 5px 15px rgba(16,185,129,0.5)', top: 0 }}
+                                transition={{ duration: 5, repeat: Infinity, ease: 'linear' }}
+                                style={{ position: 'absolute', width: '100%', height: '40px', background: 'linear-gradient(to bottom, transparent, rgba(16,185,129,0.2), rgba(16,185,129,0.5))', boxShadow: '0 5px 15px rgba(16,185,129,0.4)', top: 0, zIndex: 2 }}
                             />
 
-                            {/* Data points popping up */}
-                            <div style={{ position: 'absolute', width: '100%', height: '100%', padding: '20px' }}>
-                                {[...Array(8)].map((_, i) => (
-                                    <motion.div
-                                        key={i}
-                                        animate={{ opacity: [0, 1, 0], scale: [0.5, 1, 0.5] }}
-                                        transition={{ duration: 2, repeat: Infinity, delay: i * 0.4 }}
-                                        style={{
-                                            position: 'absolute',
-                                            left: `${20 + Math.random() * 60}%`,
-                                            top: `${10 + Math.random() * 80}%`,
-                                            width: '8px', height: '8px',
-                                            backgroundColor: '#10b981',
-                                            borderRadius: '50%',
-                                            boxShadow: '0 0 10px #10b981'
-                                        }}
-                                    />
-                                ))}
-                            </div>
-
-                            <div style={{ position: 'absolute', bottom: '10px', right: '10px', textAlign: 'right' }}>
-                                <p style={{ fontSize: '0.7rem', color: '#10b981', margin: 0, fontFamily: 'monospace' }}>OCM-3 SWATH ACTIVE</p>
-                                <p style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.4)', margin: 0, fontFamily: 'monospace' }}>LAT: 28.6139° N, LNG: 77.2090° E</p>
+                            <div style={{ position: 'absolute', bottom: '15px', right: '15px', textAlign: 'right', background: 'rgba(0,0,0,0.6)', padding: '8px 12px', borderRadius: '8px', backdropFilter: 'blur(4px)' }}>
+                                <p style={{ fontSize: '0.75rem', color: '#10b981', margin: 0, fontFamily: 'monospace', fontWeight: 'bold' }}>OCM-3 SWATH ACTIVE</p>
+                                <p style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.8)', margin: 0, fontFamily: 'monospace' }}>LAT: 28.61° N, LNG: 77.20° E</p>
                             </div>
                         </div>
                         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', color: '#64748b' }}>
@@ -96,30 +79,17 @@ export default function SatelliteFeeds() {
                             </h3>
                             <span className="badge badge-warning" style={{ animation: 'pulse 1.5s infinite' }}>Streaming</span>
                         </div>
-                        <div style={{ position: 'relative', width: '100%', height: '300px', backgroundColor: '#090d16', borderRadius: '8px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.05)', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', gap: '4px', padding: '20px' }}>
+                        <div style={{ position: 'relative', width: '100%', height: '300px', backgroundColor: '#000', borderRadius: '8px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.05)', display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}>
 
-                            {/* Animated Thermal Equalizer / Heat intensity stream */}
-                            {[...Array(20)].map((_, i) => (
-                                <motion.div
-                                    key={i}
-                                    animate={{
-                                        height: [`${10 + Math.random() * 30}%`, `${40 + Math.random() * 60}%`, `${10 + Math.random() * 30}%`],
-                                        backgroundColor: ['#f59e0b', '#ef4444', '#f59e0b']
-                                    }}
-                                    transition={{ duration: 1.5 + Math.random(), repeat: Infinity, ease: 'easeInOut' }}
-                                    style={{
-                                        width: '12px',
-                                        backgroundColor: '#f59e0b',
-                                        borderRadius: '2px 2px 0 0',
-                                        boxShadow: '0 0 10px rgba(239,68,68,0.4)',
-                                        opacity: 0.8
-                                    }}
-                                />
-                            ))}
+                            <img
+                                src="https://images.unsplash.com/photo-1533577116850-9cb66cddb69b?auto=format&fit=crop&q=80&w=800"
+                                alt="Thermal map"
+                                style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.6, filter: 'hue-rotate(320deg) contrast(1.5)' }}
+                            />
 
-                            <div style={{ position: 'absolute', top: '15px', left: '15px' }}>
+                            <div style={{ position: 'absolute', top: '15px', left: '15px', background: 'rgba(0,0,0,0.7)', padding: '8px 12px', borderRadius: '8px', backdropFilter: 'blur(4px)' }}>
                                 <p style={{ fontSize: '0.8rem', color: '#f59e0b', margin: 0, fontWeight: 'bold' }}>TIRS-2 THERMAL FEED</p>
-                                <p style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.4)', margin: 0, fontFamily: 'monospace' }}>100m SPATIAL RADIOMETRY</p>
+                                <p style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.8)', margin: 0, fontFamily: 'monospace' }}>100m SPATIAL RADIOMETRY</p>
                             </div>
                         </div>
                         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', color: '#64748b' }}>
