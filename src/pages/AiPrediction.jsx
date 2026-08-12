@@ -54,11 +54,55 @@ export default function AiPrediction() {
                 </div>
 
                 <div className="glass-panel" style={{ padding: '2rem', marginTop: '2rem' }}>
-                    <h3>Deep Neural Network Topology</h3>
-                    <div style={{ height: '300px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', background: '#090d16', borderRadius: '12px', marginTop: '1rem', border: '1px dashed rgba(255,255,255,0.1)' }}>
-                        <Activity size={40} className="text-accent-cyan" style={{ opacity: 0.3, marginBottom: '1rem' }} />
-                        <p style={{ color: 'rgba(255,255,255,0.5)', fontFamily: 'monospace' }}>[ RECURRENT NEURAL NETWORK VISUALIZATION RENDERER ]</p>
-                        <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: '0.8rem', marginTop: '0.5rem' }}>Stream Connected • Tensor Flow Edge Initialized</p>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <h3>Deep Neural Network Topology</h3>
+                        <span className="badge badge-success" style={{ animation: 'pulse 2s infinite' }}>● Live Inference</span>
+                    </div>
+                    <div style={{ position: 'relative', height: '350px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'radial-gradient(circle at center, #0a1128 0%, #030712 100%)', borderRadius: '12px', marginTop: '1rem', padding: '2rem 4rem', overflow: 'hidden', border: '1px solid rgba(6,182,212,0.1)' }}>
+
+                        {/* Background Data Stream Effect */}
+                        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundImage: 'linear-gradient(rgba(6,182,212,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(6,182,212,0.03) 1px, transparent 1px)', backgroundSize: '20px 20px', zIndex: 0 }} />
+
+                        {/* Neural Network Nodes */}
+                        {[[1, 2, 3, 4], [1, 2, 3, 4, 5, 6], [1, 2, 3, 4, 5], [1, 2, 3]].map((layer, layerIndex) => (
+                            <div key={`layer-${layerIndex}`} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', zIndex: 1 }}>
+                                {layer.map((node, nodeIndex) => (
+                                    <motion.div
+                                        key={`node-${layerIndex}-${nodeIndex}`}
+                                        initial={{ opacity: 0, scale: 0 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        transition={{ delay: (layerIndex * 0.2) + (nodeIndex * 0.1), type: 'spring' }}
+                                        style={{
+                                            width: '24px', height: '24px',
+                                            borderRadius: '50%',
+                                            background: layerIndex === 0 ? 'rgba(56,189,248,0.2)' : layerIndex === 3 ? 'rgba(239,68,68,0.2)' : 'rgba(168,85,247,0.2)',
+                                            border: `2px solid ${layerIndex === 0 ? '#38bdf8' : layerIndex === 3 ? '#ef4444' : '#a855f7'}`,
+                                            boxShadow: `0 0 15px ${layerIndex === 0 ? 'rgba(56,189,248,0.5)' : layerIndex === 3 ? 'rgba(239,68,68,0.5)' : 'rgba(168,85,247,0.5)'}`,
+                                            position: 'relative'
+                                        }}
+                                    >
+                                        <motion.div
+                                            animate={{ opacity: [0.2, 1, 0.2] }}
+                                            transition={{ duration: 1.5 + Math.random(), repeat: Infinity, delay: Math.random() }}
+                                            style={{ position: 'absolute', inset: '2px', borderRadius: '50%', background: 'white' }}
+                                        />
+                                    </motion.div>
+                                ))}
+                            </div>
+                        ))}
+
+                        {/* Connecting Lines (Simulated with absolute SVG) */}
+                        <svg style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: 0, pointerEvents: 'none', opacity: 0.4 }}>
+                            <g stroke="rgba(168,85,247,0.3)" strokeWidth="1.5" fill="none">
+                                <motion.path d="M 120 100 Q 250 150 380 120 T 640 170" animate={{ strokeDashoffset: [1000, 0] }} strokeDasharray="5,5" transition={{ duration: 20, repeat: Infinity, ease: "linear" }} />
+                                <motion.path d="M 120 180 Q 250 120 380 180 T 640 170" animate={{ strokeDashoffset: [1000, 0] }} strokeDasharray="5,5" transition={{ duration: 15, repeat: Infinity, ease: "linear" }} />
+                                <motion.path d="M 120 260 Q 300 250 380 200 T 640 170" animate={{ strokeDashoffset: [1000, 0] }} strokeDasharray="5,5" transition={{ duration: 18, repeat: Infinity, ease: "linear" }} />
+                            </g>
+                        </svg>
+
+                        <div style={{ position: 'absolute', bottom: '15px', left: '50%', transform: 'translateX(-50%)', background: 'rgba(0,0,0,0.6)', padding: '5px 15px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.1)' }}>
+                            <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.75rem', margin: 0, letterSpacing: '1px' }}>TENSOR FLOW EDGE • REAL-TIME INFERENCE STREAM</p>
+                        </div>
                     </div>
                 </div>
             </div>
