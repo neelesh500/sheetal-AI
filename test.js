@@ -15,7 +15,7 @@ const puppeteer = require('puppeteer');
     const page2 = await browser.newPage();
     page2.on('console', msg => console.log('Vercel Page Console:', msg.text()));
     page2.on('pageerror', err => console.error('Vercel Page Error:', err.message));
-    await page2.goto('https://sheetal-ai.vercel.app/', { waitUntil: 'networkidle0' });
+    await page2.goto('https://sheetal-ls2sekacp-goti3.vercel.app/', { waitUntil: 'networkidle0' });
 
     console.log("Testing complete.");
     await browser.close();
