@@ -2,20 +2,19 @@
   position: relative;
   width: 100%;
   height: 480px;
-  background: radial-gradient(circle at 50% 50%, #0b1329 0%, #020617 100%);
-  border: 1px solid rgba(6, 182, 212, 0.15);
-  border-radius: 20px;
+  background: #09090b;
+  border: 1px solid #27272a;
+  border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 0 40px rgba(6, 182, 212, 0.05);
 }
 
 /* Grid overlay background */
 .satellite-map-grid {
   position: absolute;
   inset: 0;
-  background-image: 
-    linear-gradient(rgba(6, 182, 212, 0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(6, 182, 212, 0.05) 1px, transparent 1px);
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
   background-size: 30px 30px;
   background-position: center;
   pointer-events: none;
@@ -29,14 +28,13 @@
   left: 15px;
   font-family: monospace;
   font-size: 0.75rem;
-  color: var(--accent-cyan);
-  background: rgba(15, 23, 42, 0.75);
-  border: 1px solid rgba(6, 182, 212, 0.3);
+  color: #a1a1aa;
+  background: #18181b;
+  border: 1px solid #3f3f46;
   padding: 5px 10px;
   border-radius: 6px;
   pointer-events: none;
   z-index: 10;
-  backdrop-filter: blur(5px);
 }
 
 .map-status-pill {
@@ -54,26 +52,16 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  backdrop-filter: blur(5px);
+  background: #18181b;
+  border: 1px solid #3f3f46;
 }
 
 .status-idle {
-  background: rgba(16, 185, 129, 0.1);
-  border: 1px solid rgba(16, 185, 129, 0.3);
-  color: var(--accent-emerald);
+  color: #10b981;
 }
 
 .status-active {
-  background: rgba(244, 63, 94, 0.15);
-  border: 1px solid rgba(244, 63, 94, 0.4);
-  color: var(--accent-rose);
-  animation: pulse-border 1.5s infinite;
-}
-
-@keyframes pulse-border {
-  0% { border-color: rgba(244, 63, 94, 0.4); box-shadow: 0 0 5px rgba(244, 63, 94, 0.2); }
-  50% { border-color: rgba(244, 63, 94, 0.8); box-shadow: 0 0 15px rgba(244, 63, 94, 0.4); }
-  100% { border-color: rgba(244, 63, 94, 0.4); box-shadow: 0 0 5px rgba(244, 63, 94, 0.2); }
+  color: #ef4444;
 }
 
 /* User search panel inside map overlay */
@@ -85,11 +73,10 @@
   z-index: 10;
   display: flex;
   gap: 10px;
-  background: rgba(15, 23, 42, 0.85);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #09090b;
+  border: 1px solid #27272a;
   border-radius: 12px;
   padding: 10px;
-  backdrop-filter: blur(10px);
 }
 
 @media (max-width: 576px) {
@@ -100,8 +87,8 @@
 
 .map-search-input {
   flex: 1;
-  background: rgba(2, 6, 23, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: #18181b;
+  border: 1px solid #3f3f46;
   color: #fff;
   border-radius: 8px;
   padding: 10px 16px;
@@ -112,14 +99,13 @@
 }
 
 .map-search-input:focus {
-  border-color: var(--accent-cyan);
-  box-shadow: 0 0 10px rgba(6, 182, 212, 0.2);
+  border-color: #52525b;
 }
 
 .map-trigger-btn {
-  background: linear-gradient(135deg, var(--accent-rose), #f59e0b);
+  background: #ededed;
   border: none;
-  color: white;
+  color: #09090b;
   font-weight: 600;
   border-radius: 8px;
   padding: 10px 20px;
@@ -132,7 +118,7 @@
 
 .map-trigger-btn:hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 15px rgba(244, 63, 94, 0.4);
+  background: #d4d4d8;
 }
 
 .map-trigger-btn:active {
