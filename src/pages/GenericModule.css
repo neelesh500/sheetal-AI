@@ -2,7 +2,7 @@
     padding: 2rem;
     height: 100%;
     overflow-y: auto;
-    background: radial-gradient(circle at top right, rgba(0, 240, 255, 0.05), transparent 40%);
+    background: transparent;
 }
 
 .module-header {
@@ -19,8 +19,7 @@
 }
 
 .module-main-icon {
-    color: #00f0ff;
-    filter: drop-shadow(0 0 10px rgba(0, 240, 255, 0.4));
+    color: #10b981;
 }
 
 .module-title-box h1 {
@@ -58,14 +57,13 @@
 }
 
 .action-btn.primary {
-    background: rgba(0, 240, 255, 0.1);
-    border-color: rgba(0, 240, 255, 0.4);
-    color: #00f0ff;
+    background: #ededed;
+    border-color: #ededed;
+    color: #09090b;
 }
 
 .action-btn.primary:hover {
-    background: rgba(0, 240, 255, 0.2);
-    box-shadow: 0 0 15px rgba(0, 240, 255, 0.3);
+    background: #d4d4d8;
 }
 
 .module-grid {
