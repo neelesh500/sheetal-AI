@@ -20,7 +20,7 @@ const MitigationPlan = lazy(() => import('./pages/MitigationPlan'));
 
 // Simple loading fallback custom loading UI ke liye
 const PageLoader = () => (
-  <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', minHeight: '50vh', color: '#00c2ff' }}>
+  <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', minHeight: '50vh', color: '#10b981' }}>
     <div className="loader-element">Loading Module...</div>
   </div>
 );
