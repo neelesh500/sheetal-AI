@@ -231,12 +231,12 @@ export default function SpaceDashboard() {
                             <p><strong>Thermal Status:</strong> <span className={`badge-critical ${activeHotspot.anomaly?.includes('Critical') || activeHotspot.anomaly?.includes('Warning') ? 'warning' : 'stable'}`}>{activeHotspot.anomaly}</span></p>
                             <p style={{ marginTop: '8px' }}><strong>AI Analysis:</strong> {activeHotspot.desc}</p>
 
-                            <div style={{ marginTop: '16px', background: '#020617', border: '1px solid rgba(6,182,212,0.5)', padding: '12px', borderRadius: '12px', textAlign: 'center' }}>
-                                <div style={{ fontSize: '0.75rem', color: 'var(--accent-cyan, #06b6d4)', marginBottom: '6px', fontWeight: 600, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <span>🛰️ ISRO / BHUVAN ZOOMED RASTER MAP</span>
-                                    <span style={{ fontSize: '0.65rem', background: 'rgba(6,182,212,0.2)', padding: '2px 6px', borderRadius: '4px' }}>Res: 0.25m</span>
+                            <div style={{ marginTop: '16px', background: '#0a0a0a', border: '1px solid rgba(255,255,255,0.08)', padding: '12px', borderRadius: '8px', textAlign: 'center' }}>
+                                <div style={{ fontSize: '0.75rem', color: '#a1a1aa', marginBottom: '6px', fontWeight: 600, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <span>🛰️ ZOOMED RASTER MAP</span>
+                                    <span style={{ fontSize: '0.65rem', background: 'rgba(255,255,255,0.1)', padding: '2px 6px', borderRadius: '4px' }}>Res: 0.25m</span>
                                 </div>
-                                <div style={{ position: 'relative', width: '100%', height: '150px', background: '#0f172a', borderRadius: '8px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.1)' }}>
+                                <div style={{ position: 'relative', width: '100%', height: '150px', background: '#050505', borderRadius: '6px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.05)' }}>
                                     <RegionalMapCanvas lat={activeHotspot.lat} lng={activeHotspot.lng} />
                                 </div>
                             </div>
