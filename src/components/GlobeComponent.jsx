@@ -64,12 +64,12 @@ export default function GlobeComponent({ onHotspotClick }) {
 
     return (
         <group>
-            <ambientLight intensity={0.2} />
-            <directionalLight position={[5, 3, 5]} intensity={1.5} />
-            <pointLight position={[-5, -3, -5]} color="#00f0ff" intensity={0.5} distance={20} />
+            <ambientLight intensity={0.5} />
+            <directionalLight position={[5, 3, 5]} intensity={1} />
+            <pointLight position={[-5, -3, -5]} color="#a1a1aa" intensity={0.2} distance={20} />
 
             {/* Space Background Elements */}
-            <Stars radius={100} depth={50} count={5000} factor={4} saturation={0} fade speed={1} />
+            <Stars radius={100} depth={50} count={3000} factor={4} saturation={0} fade speed={0.5} />
 
             {/* The Earth */}
             <group ref={earthRef} rotation={[0, -Math.PI / 2, 0]}>
@@ -78,18 +78,18 @@ export default function GlobeComponent({ onHotspotClick }) {
                 <Sphere args={[2.5, 64, 64]} onClick={handleGlobeClick} onPointerOver={(e) => { document.body.style.cursor = 'crosshair'; }} onPointerOut={(e) => { document.body.style.cursor = 'auto'; }}>
                     <meshStandardMaterial
                         map={colorMap}
-                        roughness={0.6}
-                        metalness={0.1}
+                        roughness={0.8}
+                        metalness={0.2}
                     />
                 </Sphere>
 
                 {/* Wireframe Overlay / Gridlines */}
                 <Sphere args={[2.51, 32, 32]}>
                     <meshBasicMaterial
-                        color="#00f0ff"
+                        color="#ffffff"
                         wireframe={true}
                         transparent
-                        opacity={0.05}
+                        opacity={0.02}
                     />
                 </Sphere>
 
@@ -107,25 +107,24 @@ export default function GlobeComponent({ onHotspotClick }) {
                             onPointerOver={(e) => { document.body.style.cursor = 'pointer'; e.stopPropagation(); }}
                             onPointerOut={(e) => { document.body.style.cursor = 'auto'; }}
                         >
-                            <sphereGeometry args={[0.06, 16, 16]} />
-                            <meshBasicMaterial color="#ff2200" />
+                            <sphereGeometry args={[0.04, 16, 16]} />
+                            <meshBasicMaterial color="#ef4444" />
                             {/* Halos */}
                             <mesh>
-                                <sphereGeometry args={[0.1, 16, 16]} />
-                                <meshBasicMaterial color="#ff5500" transparent opacity={0.5} blending={THREE.AdditiveBlending} />
+                                <sphereGeometry args={[0.08, 16, 16]} />
+                                <meshBasicMaterial color="#ef4444" transparent opacity={0.3} blending={THREE.AdditiveBlending} />
                             </mesh>
-                            <pointLight distance={2} intensity={2} color="#ff0000" />
                         </mesh>
                     );
                 })}
 
                 {/* Data Stream Lines (Curves around planet) */}
-                {Array.from({ length: 6 }).map((_, i) => {
+                {Array.from({ length: 3 }).map((_, i) => {
                     const radius = 2.7 + Math.random() * 0.3;
                     return (
                         <mesh key={`ring-${i}`} rotation={[Math.random() * Math.PI, Math.random() * Math.PI, 0]}>
-                            <torusGeometry args={[radius, 0.002, 16, 100]} />
-                            <meshBasicMaterial color="#00f0ff" transparent opacity={0.3} />
+                            <torusGeometry args={[radius, 0.001, 16, 100]} />
+                            <meshBasicMaterial color="#cbd5e1" transparent opacity={0.1} />
                         </mesh>
                     );
                 })}
@@ -134,9 +133,9 @@ export default function GlobeComponent({ onHotspotClick }) {
             {/* Atmospheric Glow */}
             <Sphere args={[2.65, 64, 64]} ref={cloudsRef}>
                 <meshBasicMaterial
-                    color="#00aaff"
+                    color="#e0f2fe"
                     transparent
-                    opacity={0.1}
+                    opacity={0.05}
                     side={THREE.BackSide}
                     blending={THREE.AdditiveBlending}
                 />
