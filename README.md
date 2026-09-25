@@ -1,16 +1,38 @@
-# React + Vite
+# SHEETAL.AI
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+> Advanced Urban Heat & Climate Monitoring Platform
 
-Currently, two official plugins are available:
+SHEETAL.AI is a cutting-edge platform designed to analyze, visualize, and mitigate Urban Heat Island (UHI) effects and climate anomalies using high-fidelity satellite data and AI-driven predictive modeling.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## 🚀 Features
 
-## React Compiler
+- **3D Earth & Dashboard**: Real-time visualization of thermal targeting and global grid sectors.
+- **Satellite EO Feeds**: Direct integration with multispectral radiance data from ISRO Oceansat-3 & NASA Landsat-9.
+- **AI Heat Prediction**: Deep Neural Networks generating dynamic forecasts for peak extreme conditions.
+- **Thermal Analytics & UHI Scans**: Multi-layer viewers mapping LST, NDVI, Albedo, and Heat Stress anomalies.
+- **Scenario Simulator**: Simulate urban interventions (like canopy covers and cool roofs) to observe microclimate changes.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## 🛠️ Technology Stack
 
-## Expanding the Oxlint configuration
+- **Framework**: React / Vite
+- **UI & Animation**: Framer Motion, standard CSS structure, Lucide Icons
+- **3D Rendering**: Three.js / React Three Fiber
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+## 📦 Getting Started
+
+To run the application locally:
+
+```bash
+# Install dependencies
+npm install
+
+# Start development server
+npm run dev
+```
+
+## 🎨 Design Philosophy
+
+SHEETAL.AI adheres to a strictly minimalist, professional dark mode aesthetic, abandoning neon and excessive styles in favor of a clean, data-driven experience suitable for high-stakes governmental and corporate research dashboards.
+
+---
+_Internal ISRO/Bhuvan integration dashboard prototype._
