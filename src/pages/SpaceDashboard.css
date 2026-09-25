@@ -4,53 +4,17 @@
     height: 100vh;
     overflow: hidden;
     position: relative;
-    background: radial-gradient(circle at 50% 50%, #030a1c 0%, #000000 100%);
+    background: #000000;
     display: flex;
     flex-direction: column;
 }
 
-.space-background {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 1;
-    pointer-events: none;
-}
-
 .curved-screen-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 100;
-    pointer-events: none;
-    background:
-        linear-gradient(to right, rgba(0, 255, 255, 0.02) 0%, transparent 15%, transparent 85%, rgba(0, 255, 255, 0.02) 100%),
-        linear-gradient(to bottom, rgba(0, 255, 255, 0.02) 0%, transparent 15%, transparent 85%, rgba(0, 255, 255, 0.02) 100%);
-    box-shadow: inset 0 0 150px rgba(0, 0, 0, 0.9);
+    display: none;
 }
 
 .scanline {
-    width: 100%;
-    height: 10px;
-    background: rgba(0, 255, 255, 0.03);
-    position: absolute;
-    z-index: 99;
-    animation: scan 8s linear infinite;
-    pointer-events: none;
-}
-
-@keyframes scan {
-    0% {
-        transform: translateY(-100px);
-    }
-
-    100% {
-        transform: translateY(100vh);
-    }
+    display: none;
 }
 
 .space-header {
@@ -127,33 +91,26 @@
 
 .data-card {
     position: absolute;
-    background: rgba(4, 13, 33, 0.6);
-    backdrop-filter: blur(12px);
-    border: 1px solid rgba(0, 240, 255, 0.2);
+    background: rgba(10, 10, 10, 0.7);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 12px;
     padding: 1.25rem;
     width: 280px;
     color: #fff;
     pointer-events: auto;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5), 0 0 20px rgba(0, 240, 255, 0.1) inset;
-    transition: transform 0.3s ease, border-color 0.3s ease;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    transition: transform 0.2s ease, border-color 0.2s ease;
 }
 
 .data-card:hover {
-    border-color: rgba(0, 240, 255, 0.6);
-    transform: scale(1.05);
-    box-shadow: 0 15px 50px rgba(0, 0, 0, 0.7), 0 0 30px rgba(0, 240, 255, 0.2) inset;
+    border-color: rgba(255, 255, 255, 0.15);
+    transform: translateY(-2px);
 }
 
 .data-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 2px;
-    background: linear-gradient(90deg, transparent, #00f0ff, transparent);
-    opacity: 0.5;
+    display: none;
 }
 
 .card-tl {
@@ -260,69 +217,43 @@
 
 .timeline-slider::-webkit-slider-thumb {
     -webkit-appearance: none;
-    width: 16px;
-    height: 16px;
-    background: #00f0ff;
+    width: 12px;
+    height: 12px;
+    background: #e4e4e7;
     border-radius: 50%;
     cursor: pointer;
-    box-shadow: 0 0 10px #00f0ff;
 }
 
 .nav-buttons {
     display: flex;
     justify-content: center;
-    gap: 1.5rem;
+    gap: 1rem;
 }
 
 .holo-btn {
-    background: rgba(0, 240, 255, 0.1);
-    border: 1px solid rgba(0, 240, 255, 0.4);
-    color: #00f0ff;
-    padding: 0.6rem 2rem;
-    border-radius: 4px;
-    font-family: var(--font-display);
-    font-weight: 600;
-    letter-spacing: 1px;
-    text-transform: uppercase;
+    background: #27272a;
+    border: 1px solid #3f3f46;
+    color: #e4e4e7;
+    padding: 0.5rem 1.25rem;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    font-weight: 500;
     cursor: pointer;
-    transition: all 0.3s;
-    position: relative;
-    overflow: hidden;
-}
-
-.holo-btn::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(0, 240, 255, 0.4), transparent);
-    transition: left 0.5s;
-}
-
-.holo-btn:hover::before {
-    left: 100%;
+    transition: all 0.2s ease;
 }
 
 .holo-btn:hover {
-    background: rgba(0, 240, 255, 0.2);
-    box-shadow: 0 0 15px rgba(0, 240, 255, 0.4);
+    background: #3f3f46;
 }
 
 .holo-btn.primary {
-    background: rgba(255, 85, 0, 0.15);
-    border-color: #ff5500;
-    color: #ff5500;
+    background: #ededed;
+    border-color: #ededed;
+    color: #09090b;
 }
 
 .holo-btn.primary:hover {
-    background: rgba(255, 85, 0, 0.3);
-    box-shadow: 0 0 15px rgba(255, 85, 0, 0.5);
-}
-
-.holo-btn.primary::before {
-    background: linear-gradient(90deg, transparent, rgba(255, 85, 0, 0.4), transparent);
+    background: #d4d4d8;
 }
 
 /* Modals */
@@ -332,14 +263,14 @@
     left: 50%;
     transform: translate(-50%, -50%);
     width: 480px;
-    background: rgba(2, 6, 23, 0.95);
-    backdrop-filter: blur(15px);
-    border: 1px solid #ffaa00;
+    background: rgba(10, 10, 10, 0.95);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 12px;
     padding: 1.5rem;
     color: #fff;
     z-index: 50;
-    box-shadow: 0 15px 50px rgba(0, 0, 0, 0.8), 0 0 30px rgba(255, 170, 0, 0.1) inset;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
 }
 
 .modal-header {
@@ -448,7 +379,9 @@
     flex: 1;
     padding: 0.5rem 1rem;
     font-size: 0.85rem;
-}/* SpaceDashboard.css styling additions for buttons and badges */
+}
+
+/* SpaceDashboard.css styling additions for buttons and badges */
 .card-title {
     font-family: var(--font-display);
     font-size: 1.05rem;
@@ -485,41 +418,28 @@
 }
 
 .card-action-btn {
-    margin-top: 1rem;
+    margin-top: 1.25rem;
     width: 100%;
-    background: rgba(0, 240, 255, 0.1);
-    border: 1px solid rgba(0, 240, 255, 0.3);
-    color: #00f0ff;
-    padding: 0.6rem 0;
+    background: #27272a;
+    border: 1px solid #3f3f46;
+    color: #e4e4e7;
+    padding: 0.5rem 0;
     border-radius: 6px;
-    font-family: var(--font-display);
-    font-weight: 600;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    font-size: 0.8rem;
+    font-size: 0.75rem;
+    font-weight: 500;
     cursor: pointer;
-    transition: all 0.3s ease;
-    position: relative;
-    overflow: hidden;
+    transition: all 0.2s ease;
 }
 
 .card-action-btn:hover {
-    background: rgba(0, 240, 255, 0.2);
-    box-shadow: 0 0 15px rgba(0, 240, 255, 0.4);
-    transform: translateY(-2px);
+    background: #3f3f46;
+    transform: translateY(-1px);
 }
 
 .card-action-btn::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(0, 240, 255, 0.3), transparent);
-    transition: left 0.5s ease;
+    display: none;
 }
 
 .card-action-btn:hover::before {
-    left: 100%;
+    display: none;
 }
