@@ -7,7 +7,7 @@ import './GenericModule.css';
 export default function GenericModule({ title, icon: Icon, description }) {
     const handleAction = (actionName) => {
         toast.success(`${actionName} executed successfully in ${title}.`, {
-            style: { border: '1px solid #00f0ff', background: '#020617', color: '#00f0ff' }
+            style: { border: '1px solid #27272a', background: '#09090b', color: '#ededed' }
         });
     };
 
@@ -39,7 +39,7 @@ export default function GenericModule({ title, icon: Icon, description }) {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: i * 0.1 }}
-                        whileHover={{ y: -5, borderColor: 'rgba(0, 240, 255, 0.5)' }}
+                        whileHover={{ y: -2, borderColor: 'rgba(255, 255, 255, 0.2)' }}
                     >
                         <div className="card-top">
                             <Layers size={20} className="text-accent-cyan" />
