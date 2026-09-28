@@ -13,14 +13,13 @@ export default function MainLayout({ children }) {
                 position="top-right"
                 toastOptions={{
                     style: {
-                        background: 'rgba(4, 13, 33, 0.9)',
-                        border: '1px solid rgba(0, 240, 255, 0.4)',
-                        color: '#fff',
-                        backdropFilter: 'blur(10px)',
+                        background: '#09090b',
+                        border: '1px solid #27272a',
+                        color: '#ededed',
                     },
                     success: {
                         iconTheme: {
-                            primary: '#00f0ff',
+                            primary: '#10b981',
                             secondary: '#000',
                         },
                     },
