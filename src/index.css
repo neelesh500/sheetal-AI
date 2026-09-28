@@ -32,7 +32,7 @@
 
 body {
   font-family: var(--font-sans);
-  background: var(--bg-darker);
+  background: radial-gradient(circle at top, #1e293b 0%, #050505 60%);
   color: var(--text-main);
   min-height: 100vh;
   overflow-x: hidden;
