@@ -19,6 +19,14 @@ export const routeCategories = [
         ]
     },
     {
+        title: "INTELLIGENCE ENGINE",
+        routes: [
+            { path: '/ml-models', label: 'ML Models', icon: Settings },
+            { path: '/deep-learning', label: 'Deep Learning', icon: Brain },
+            { path: '/voice-command', label: 'Voice Command', icon: Wind }
+        ]
+    },
+    {
         title: "ANALYTICS & METRICS",
         routes: [
             { path: '/analytics', label: 'Thermal Analytics', icon: Thermometer },
@@ -59,7 +67,7 @@ export const routesConfig = routeCategories.flatMap(c => c.routes);
 export default function Sidebar() {
     const handleNavClick = (label) => {
         // Sound simulator effect via toast notification
-        toast(`Initializing link to [ ${label.toUpperCase()} ]...`, { icon: '📡', style: { background: '#020617', color: '#00f0ff', border: '1px solid #00f0ff' } });
+        toast(`Initializing link to [ ${label.toUpperCase()} ]...`, { icon: '📡', style: { background: '#09090b', color: '#e4e4e7', border: '1px solid #27272a' } });
     };
 
     return (
