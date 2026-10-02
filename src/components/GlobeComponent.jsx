@@ -24,15 +24,18 @@ export default function GlobeComponent({ onHotspotClick }) {
         return new THREE.Vector3(x, y, z);
     };
 
-    const hotspots = [
-        { id: 'dl', name: 'New Delhi (India)', lat: 28.6139, lng: 77.2090, temp: '48.5°C', anomaly: 'Critical (+7.2°C)', desc: 'High concrete density trapping solar radiation in South Asia.' },
-        { id: 'phx', name: 'Phoenix, Arizona (USA)', lat: 33.4484, lng: -112.0740, temp: '49.2°C', anomaly: 'Critical (+8.0°C)', desc: 'Desert urban heat island amplified by extensive asphalt sprawl.' },
-        { id: 'cai', name: 'Cairo (Egypt)', lat: 30.0444, lng: 31.2357, temp: '47.0°C', anomaly: 'Critical (+6.5°C)', desc: 'Arid climate combined with high urban density and low vegetation.' },
-        { id: 'ath', name: 'Athens (Greece)', lat: 37.9838, lng: 23.7275, temp: '45.5°C', anomaly: 'Warning (+5.2°C)', desc: 'Mediterranean basin heat trap affecting southern Europe.' },
-        { id: 'tok', name: 'Tokyo (Japan)', lat: 35.6762, lng: 139.6503, temp: '41.8°C', anomaly: 'Warning (+4.0°C)', desc: 'Metropolitan anthropogenic heat emissions from dense HVAC and transport.' },
-        { id: 'sao', name: 'São Paulo (Brazil)', lat: -23.5505, lng: -46.6333, temp: '39.4°C', anomaly: 'Moderate (+3.1°C)', desc: 'Rapid urbanization reducing green canopy across the plateau.' },
-        { id: 'lag', name: 'Lagos (Nigeria)', lat: 6.5244, lng: 3.3792, temp: '42.1°C', anomaly: 'Warning (+4.6°C)', desc: 'Coastal equatorial heat stress and rapid infrastructural expansion.' }
-    ];
+    const [hotspots, setHotspots] = React.useState([]);
+
+    React.useEffect(() => {
+        fetch('http://localhost:8000/api/v1/hotspots')
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === 'success' && data.data) {
+                    setHotspots(data.data);
+                }
+            })
+            .catch(err => console.error("Could not load backend hotspots:", err));
+    }, []);
 
     useFrame((state) => {
         if (cloudsRef.current) {
