@@ -6,7 +6,7 @@ import AnimatedButton from '../components/AnimatedButton';
 import LayerToggle from '../components/LayerToggle';
 import MapLegend from '../components/MapLegend';
 import MetricCard from '../components/MetricCard';
-import SatelliteAnalysisMap from '../components/SatelliteAnalysisMap';
+import LeafletMap from '../components/LeafletMap';
 import {
   mapLayers,
   lstData,
@@ -96,7 +96,7 @@ export default function HeatMap() {
               </AnimatedButton>
             </div>
 
-            <SatelliteAnalysisMap />
+            <LeafletMap />
 
             <MapLegend
               title={layer?.data.title}
