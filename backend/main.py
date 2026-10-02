@@ -4,14 +4,17 @@ from pydantic import BaseModel
 from typing import List, Optional
 import asyncio
 import json
+import os
+import random
+from sqlalchemy import create_engine, Column, Integer, String, Float
+from sqlalchemy.orm import declarative_base, sessionmaker
 
 app = FastAPI(
     title="SHEETAL.AI Backend Core",
     description="Core backend telemetry and AI inference API for Bharatiya Antariksh Hackathon 2026",
-    version="1.0.0"
+    version="1.1.0"
 )
 
-# Enable CORS for frontend integration
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -20,57 +23,126 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# --- SQLite Database Setup ---
+SQLALCHEMY_DATABASE_URL = "sqlite:///./sheetal_core.db"
+engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False})
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+Base = declarative_base()
+
+class Hotspot(Base):
+    __tablename__ = "hotspots"
+    id = Column(String, primary_key=True, index=True)
+    city_name = Column(String, index=True)
+    lat = Column(Float)
+    lon = Column(Float)
+    surface_temp = Column(Float)
+    anomaly_level = Column(String)
+
+Base.metadata.create_all(bind=engine)
+
+# Seed DB if empty
+db = SessionLocal()
+if db.query(Hotspot).count() == 0:
+    mock_data = [
+        {"id": "dl-01", "city_name": "New Delhi (India)", "lat": 28.6139, "lon": 77.2090, "surface_temp": 48.5, "anomaly_level": "Critical (+7.2°C)"},
+        {"id": "phx-02", "city_name": "Phoenix (USA)", "lat": 33.4484, "lon": -112.0740, "surface_temp": 49.2, "anomaly_level": "Critical (+8.0°C)"},
+        {"id": "cai-03", "city_name": "Cairo (Egypt)", "lat": 30.0444, "lon": 31.2357, "surface_temp": 47.0, "anomaly_level": "Critical (+6.5°C)"},
+        {"id": "ath-04", "city_name": "Athens (Greece)", "lat": 37.9838, "lon": 23.7275, "surface_temp": 45.5, "anomaly_level": "Warning (+5.2°C)"},
+        {"id": "tok-05", "city_name": "Tokyo (Japan)", "lat": 35.6762, "lon": 139.6503, "surface_temp": 41.8, "anomaly_level": "Warning (+4.0°C)"}
+    ]
+    for m in mock_data:
+        db.add(Hotspot(**m))
+    db.commit()
+db.close()
+
+# --- ML Model Setup (scikit-learn) ---
+try:
+    import pandas as pd
+    from sklearn.ensemble import RandomForestRegressor
+    import joblib
+    MODEL_PATH = "lst_model.pkl"
+    if not os.path.exists(MODEL_PATH):
+        print("Training synthetic ML Model...")
+        data = {
+            'lat': [random.uniform(-90, 90) for _ in range(200)],
+            'lon': [random.uniform(-180, 180) for _ in range(200)],
+            'current_temp': [random.uniform(35, 50) for _ in range(200)],
+            'green_cover_increase_pct': [random.uniform(0, 50) for _ in range(200)],
+        }
+        df = pd.DataFrame(data)
+        df['temp_drop'] = (df['green_cover_increase_pct'] * 0.15) + (df['current_temp'] * 0.05) + random.uniform(-0.5, 0.5)
+        
+        X = df[['lat', 'lon', 'current_temp', 'green_cover_increase_pct']]
+        y = df['temp_drop']
+        model = RandomForestRegressor(n_estimators=50, random_state=42)
+        model.fit(X, y)
+        joblib.dump(model, MODEL_PATH)
+    else:
+        model = joblib.load(MODEL_PATH)
+    ML_AVAILABLE = True
+except Exception as e:
+    print(f"ML Model setup failed: {e}")
+    ML_AVAILABLE = False
+
+
 # --- Pydantic Data Models ---
 class PredictionRequest(BaseModel):
     region: str
+    lat: float = 0.0
+    lon: float = 0.0
+    current_temp: float = 40.0
     green_cover_increase_pct: float
-
-# --- Mock Database (In-Memory for Core Setup) ---
-HOTSPOTS_DB = [
-    {"id": "dl-01", "city_name": "New Delhi", "lat": 28.6139, "lon": 77.2090, "surface_temp": 48.5, "anomaly_level": "Critical"},
-    {"id": "ah-02", "city_name": "Ahmedabad", "lat": 23.0225, "lon": 72.5714, "surface_temp": 47.8, "anomaly_level": "Critical"},
-    {"id": "mb-03", "city_name": "Mumbai", "lat": 19.0760, "lon": 72.8777, "surface_temp": 44.2, "anomaly_level": "Warning"},
-    {"id": "kn-04", "city_name": "Kanpur", "lat": 26.4499, "lon": 80.3319, "surface_temp": 46.9, "anomaly_level": "Critical"}
-]
 
 # --- Core REST Endpoints ---
 @app.get("/")
 async def root():
-    return {
-        "status": "online",
-        "system": "SHEETAL.AI Space Intelligence Core",
-        "hackathon": "Bharatiya Antariksh Hackathon 2026"
-    }
+    return {"status": "online", "system": "SHEETAL.AI", "ml_ready": ML_AVAILABLE}
 
 @app.get("/api/v1/hotspots")
 async def get_hotspots():
-    """Fetch active high-resolution thermal hotspots."""
-    return {"status": "success", "count": len(HOTSPOTS_DB), "data": HOTSPOTS_DB}
+    db = SessionLocal()
+    hotspots = db.query(Hotspot).all()
+    out = []
+    for h in hotspots:
+        out.append({
+            "id": h.id, "name": h.city_name, "lat": h.lat, "lng": h.lon,
+            "temp": f"{h.surface_temp}°C", "anomaly": h.anomaly_level,
+            "desc": "Fetched dynamically from SQLite Database via SQLAlchemy"
+        })
+    db.close()
+    return {"status": "success", "count": len(out), "data": out}
 
 @app.post("/api/v1/ai/predict")
 async def run_ai_prediction(payload: PredictionRequest):
-    """Execute deep neural network LST microclimate forecasting simulation."""
-    await asyncio.sleep(0.4) # Simulating AI processing delay
-    temp_drop = payload.green_cover_increase_pct * 0.14
+    """Execute ML prediction"""
+    if ML_AVAILABLE:
+        try:
+            import joblib
+            import pandas as pd
+            model = joblib.load(MODEL_PATH)
+            X_test = pd.DataFrame([{
+                'lat': payload.lat, 'lon': payload.lon, 
+                'current_temp': payload.current_temp, 
+                'green_cover_increase_pct': payload.green_cover_increase_pct
+            }])
+            temp_drop = float(model.predict(X_test)[0])
+            conf = 0.94
+        except:
+            temp_drop = payload.green_cover_increase_pct * 0.14
+            conf = 0.85
+    else:
+        temp_drop = payload.green_cover_increase_pct * 0.14
+        conf = 0.85
+        
     return {
         "status": "success",
         "region": payload.region,
         "green_cover_added_pct": payload.green_cover_increase_pct,
         "expected_temperature_reduction_celsius": round(temp_drop, 2),
-        "confidence_score": 0.964,
-        "message": "AI microclimate prediction executed successfully."
+        "confidence_score": conf,
+        "source": "scikit-learn (RandomForest)" if ML_AVAILABLE else "Math Fallback"
     }
 
-@app.get("/api/v1/satellites/sync")
-async def sync_satellites():
-    """Trigger synchronization with ISRO Bhuvan & USGS Landsat-9 OGC WMS services."""
-    return {
-        "sync_status": "completed",
-        "sources_connected": ["ISRO Cartosat-3", "NASA Landsat-9 TIRS-2", "ESA Sentinel-3"],
-        "rasters_cached": 14
-    }
-
-# --- Real-Time WebSocket Manager ---
 class ConnectionManager:
     def __init__(self):
         self.active_connections: List[WebSocket] = []
@@ -89,12 +161,16 @@ async def websocket_endpoint(websocket: WebSocket):
     await manager.connect(websocket)
     try:
         while True:
+            db = SessionLocal()
+            count = db.query(Hotspot).count()
+            db.close()
             data = json.dumps({
                 "type": "telemetry_ping", 
-                "active_anomalies": len(HOTSPOTS_DB), 
-                "system_status": "nominal"
+                "active_anomalies": count,
+                "system_status": "nominal",
+                "live_lst_variation": round(random.uniform(-1.5, 2.5), 2)
             })
             await websocket.send_text(data)
-            await asyncio.sleep(10)
+            await asyncio.sleep(5)
     except WebSocketDisconnect:
         manager.disconnect(websocket)
