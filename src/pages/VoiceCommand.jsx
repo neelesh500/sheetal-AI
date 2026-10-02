@@ -1,19 +1,68 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Mic, MicOff } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 export default function VoiceCommand() {
     const [isListening, setIsListening] = useState(false);
     const [transcript, setTranscript] = useState("");
+    const navigate = useNavigate();
+    const recognitionRef = useRef(null);
+
+    useEffect(() => {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (SpeechRecognition) {
+            const recognition = new SpeechRecognition();
+            recognition.continuous = false;
+            recognition.interimResults = false;
+            recognition.lang = 'en-US';
+
+            recognition.onstart = () => {
+                setIsListening(true);
+                setTranscript("Listening...");
+            };
+
+            recognition.onresult = (event) => {
+                const current = event.resultIndex;
+                const resultText = event.results[current][0].transcript.toLowerCase();
+                setTranscript(`"${resultText}"`);
+
+                // Route navigation based on speech
+                if (resultText.includes('heat') || resultText.includes('map') || resultText.includes('thermal')) {
+                    setTimeout(() => navigate('/mapping'), 1500);
+                } else if (resultText.includes('predict') || resultText.includes('model') || resultText.includes('xgboost')) {
+                    setTimeout(() => navigate('/prediction'), 1500);
+                } else if (resultText.includes('satellite') || resultText.includes('feed')) {
+                    setTimeout(() => navigate('/satellite'), 1500);
+                }
+            };
+
+            recognition.onerror = (event) => {
+                console.error("Speech Recognition Error:", event.error);
+                setIsListening(false);
+                setTranscript("Microphone error. Please try again.");
+            };
+
+            recognition.onend = () => {
+                setIsListening(false);
+            };
+
+            recognitionRef.current = recognition;
+        } else {
+            console.warn("Speech Recognition API not supported in this browser.");
+        }
+    }, [navigate]);
 
     const toggleListening = () => {
-        setIsListening(!isListening);
         if (!isListening) {
-            setTranscript("Listening for vocal instructions...");
-            setTimeout(() => {
-                setTranscript("Processing spatial data analysis query...");
-            }, 3000);
+            if (recognitionRef.current) {
+                recognitionRef.current.start();
+            } else {
+                setTranscript("Speech recognition not supported in this browser.");
+            }
         } else {
-            setTranscript("");
+            if (recognitionRef.current) {
+                recognitionRef.current.stop();
+            }
         }
     };
 
@@ -62,9 +111,9 @@ export default function VoiceCommand() {
                 <div className="concept-card glass-panel" style={{ marginTop: '2rem', textAlign: 'left' }}>
                     <h4 style={{ color: 'var(--accent-cyan)', marginBottom: '1rem' }}>Suggested Commands:</h4>
                     <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
-                        <li><span className="source-tag">"Show thermal map for New Delhi"</span></li>
-                        <li><span className="source-tag">"Deploy XGBoost model on current data"</span></li>
-                        <li><span className="source-tag">"Generate impact matrix report"</span></li>
+                        <li><span className="source-tag">"Show thermal map for New Delhi"</span> &rarr; Navigates to Hotspots</li>
+                        <li><span className="source-tag">"Deploy XGBoost model on current data"</span> &rarr; Navigates to Prediction Engine</li>
+                        <li><span className="source-tag">"Show satellite feeds"</span> &rarr; Navigates to Satellite Feeds</li>
                     </ul>
                 </div>
             </div>
