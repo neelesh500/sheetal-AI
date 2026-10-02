@@ -11,26 +11,48 @@ export default function ScenarioSimulator() {
   const [canopy, setCanopy] = useState(40);
   const [albedo, setAlbedo] = useState(75);
 
-  const estimatedCooling = resultReady
-    ? (canopy * 0.014 + albedo * 0.018).toFixed(1)
-    : null;
+  const [estimatedCooling, setEstimatedCooling] = useState(null);
 
-  const projectedLst = resultReady
+  const projectedLst = resultReady && estimatedCooling !== null
     ? (47.6 - parseFloat(estimatedCooling)).toFixed(1)
     : null;
 
-  const projectedWbgt = resultReady
+  const projectedWbgt = resultReady && estimatedCooling !== null
     ? (31.4 - parseFloat(estimatedCooling) * 0.7).toFixed(1)
     : null;
 
-  const handleSimulate = () => {
+  const handleSimulate = async () => {
     setIsSimulating(true);
     setResultReady(false);
 
-    setTimeout(() => {
+    try {
+      const response = await fetch('http://localhost:8000/api/v1/ai/predict', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          region: 'custom_simulation',
+          lat: 28.6139,
+          lon: 77.2090,
+          current_temp: 47.6,
+          green_cover_increase_pct: canopy
+        })
+      });
+      const data = await response.json();
+      if (data.status === 'success') {
+        // ML model provides expected reduction. Additionally factor in Albedo
+        const finalCooling = data.expected_temperature_reduction_celsius + (albedo * 0.018);
+        setEstimatedCooling(finalCooling.toFixed(1));
+      } else {
+        setEstimatedCooling((canopy * 0.014 + albedo * 0.018).toFixed(1));
+      }
+    } catch (err) {
+      console.error("AI Error:", err);
+      // Fallback
+      setEstimatedCooling((canopy * 0.014 + albedo * 0.018).toFixed(1));
+    } finally {
       setIsSimulating(false);
       setResultReady(true);
-    }, 2500);
+    }
   };
 
   return (
