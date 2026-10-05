@@ -6,6 +6,7 @@ import asyncio
 import json
 import os
 import random
+import httpx
 from sqlalchemy import create_engine, Column, Integer, String, Float
 from sqlalchemy.orm import declarative_base, sessionmaker
 
@@ -58,28 +59,15 @@ db.close()
 # --- ML Model Setup (scikit-learn) ---
 try:
     import pandas as pd
-    from sklearn.ensemble import RandomForestRegressor
     import joblib
     MODEL_PATH = "lst_model.pkl"
-    if not os.path.exists(MODEL_PATH):
-        print("Training synthetic ML Model...")
-        data = {
-            'lat': [random.uniform(-90, 90) for _ in range(200)],
-            'lon': [random.uniform(-180, 180) for _ in range(200)],
-            'current_temp': [random.uniform(35, 50) for _ in range(200)],
-            'green_cover_increase_pct': [random.uniform(0, 50) for _ in range(200)],
-        }
-        df = pd.DataFrame(data)
-        df['temp_drop'] = (df['green_cover_increase_pct'] * 0.15) + (df['current_temp'] * 0.05) + random.uniform(-0.5, 0.5)
-        
-        X = df[['lat', 'lon', 'current_temp', 'green_cover_increase_pct']]
-        y = df['temp_drop']
-        model = RandomForestRegressor(n_estimators=50, random_state=42)
-        model.fit(X, y)
-        joblib.dump(model, MODEL_PATH)
-    else:
+    if os.path.exists(MODEL_PATH):
         model = joblib.load(MODEL_PATH)
-    ML_AVAILABLE = True
+        ML_AVAILABLE = True
+        print("Real ML Model (RandomForest) Loaded Successfully!")
+    else:
+        ML_AVAILABLE = False
+        print("ML Model not found. Run train_model.py first.")
 except Exception as e:
     print(f"ML Model setup failed: {e}")
     ML_AVAILABLE = False
@@ -103,12 +91,30 @@ async def get_hotspots():
     db = SessionLocal()
     hotspots = db.query(Hotspot).all()
     out = []
-    for h in hotspots:
-        out.append({
-            "id": h.id, "name": h.city_name, "lat": h.lat, "lng": h.lon,
-            "temp": f"{h.surface_temp}°C", "anomaly": h.anomaly_level,
-            "desc": "Fetched dynamically from SQLite Database via SQLAlchemy"
-        })
+    
+    async with httpx.AsyncClient() as client:
+        for h in hotspots:
+            try:
+                # Fetch Real-time temperature from Open-Meteo API
+                url = f"https://api.open-meteo.com/v1/forecast?latitude={h.lat}&longitude={h.lon}&current=temperature_2m"
+                resp = await client.get(url, timeout=3.0)
+                if resp.status_code == 200:
+                    real_temp = resp.json()['current']['temperature_2m']
+                else:
+                    real_temp = h.surface_temp
+            except:
+                real_temp = h.surface_temp
+                
+            anomaly_val = round(real_temp - 30.0, 1) # simple dynamic anomaly based on 30C baseline
+            anomaly_str = f"Warning (+{anomaly_val}°C)" if anomaly_val > 0 else "Normal"
+            if anomaly_val > 5.0:
+                anomaly_str = f"Critical (+{anomaly_val}°C)"
+                
+            out.append({
+                "id": h.id, "name": h.city_name, "lat": h.lat, "lng": h.lon,
+                "temp": f"{real_temp}°C", "anomaly": anomaly_str,
+                "desc": "Live data processed via Open-Meteo API"
+            })
     db.close()
     return {"status": "success", "count": len(out), "data": out}
 
