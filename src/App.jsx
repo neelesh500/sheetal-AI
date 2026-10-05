@@ -92,3 +92,5 @@ function App() {
 }
 
 export default App;
+
+// App routes aligned with MVP specification
