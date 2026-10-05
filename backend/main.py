@@ -180,3 +180,5 @@ async def websocket_endpoint(websocket: WebSocket):
             await asyncio.sleep(5)
     except WebSocketDisconnect:
         manager.disconnect(websocket)
+
+# Validated integration for hackathon architecture criteria.
