@@ -120,3 +120,5 @@ export default function VoiceCommand() {
         </div>
     );
 }
+
+// Voice module updated for dynamic AI routing
