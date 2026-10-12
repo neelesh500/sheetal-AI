@@ -20,6 +20,8 @@ const MitigationPlan = lazy(() => import('./pages/MitigationPlan'));
 const MLModels = lazy(() => import('./pages/MLModels'));
 const DeepLearning = lazy(() => import('./pages/DeepLearning'));
 const VoiceCommand = lazy(() => import('./pages/VoiceCommand'));
+const DatasetCatalog = lazy(() => import('./pages/DatasetCatalog'));
+const SatelliteAnalysisMap = lazy(() => import('./components/SatelliteAnalysisMap'));
 
 // Simple loading fallback custom loading UI ke liye
 const PageLoader = () => (
@@ -38,7 +40,9 @@ const componentsMap = {
   '/mitigation': MitigationPlan,
   '/ml-models': MLModels,
   '/deep-learning': DeepLearning,
-  '/voice-command': VoiceCommand
+  '/voice-command': VoiceCommand,
+  '/datasets': DatasetCatalog,
+  '/satellite-scan': SatelliteAnalysisMap,
 };
 
 function AnimatedRoutes() {

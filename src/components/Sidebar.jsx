@@ -3,7 +3,7 @@ import { NavLink } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import {
     Globe, Satellite, Brain, Map, Thermometer, Wind, AlertTriangle, Database,
-    Sliders, FileText, Bell, MapPin, Users, Code, BookOpen, Settings, Activity, LifeBuoy
+    Sliders, FileText, Bell, MapPin, Users, Code, BookOpen, Settings, Activity, LifeBuoy, Compass
 } from 'lucide-react';
 import './Sidebar.css';
 
@@ -13,6 +13,7 @@ export const routeCategories = [
         title: "COMMAND CORE",
         routes: [
             { path: '/', label: '3D Earth & Dashboard', icon: Globe },
+            { path: '/satellite-scan', label: 'Cyber Target Scan', icon: Compass },
             { path: '/satellite', label: 'Satellite EO Feeds', icon: Satellite },
             { path: '/mapping', label: 'Thermal Target Mapping', icon: Map },
             { path: '/prediction', label: 'AI Heat Prediction', icon: Brain }
