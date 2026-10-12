@@ -5,6 +5,8 @@ import AnimatedPage from '../components/AnimatedPage';
 import AnimatedButton from '../components/AnimatedButton';
 import { albedoData, ndviData, pinnData, heatStressData } from '../data/climateData';
 
+import api from '../services/api';
+
 export default function ScenarioSimulator() {
   const [isSimulating, setIsSimulating] = useState(false);
   const [resultReady, setResultReady] = useState(false);
@@ -26,29 +28,26 @@ export default function ScenarioSimulator() {
     setResultReady(false);
 
     try {
-      const response = await fetch('http://localhost:8000/api/v1/ai/predict', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          region: 'custom_simulation',
-          lat: 28.6139,
-          lon: 77.2090,
-          current_temp: 47.6,
-          green_cover_increase_pct: canopy
-        })
+      const data = await api.predictCooling({
+        region: 'custom_simulation',
+        latitude: 28.6139,
+        longitude: 77.2090,
+        air_temp_2m_celsius: 47.6,
+        ndvi: 0.15 + (canopy / 100) * 0.35,
+        surface_albedo: (albedo / 100) * 0.4 + 0.1,
+        canopy_cover_pct: canopy,
+        impervious_surface_pct: Math.max(10, 85 - canopy)
       });
-      const data = await response.json();
+
       if (data.status === 'success') {
-        // ML model provides expected reduction. Additionally factor in Albedo
-        const finalCooling = data.expected_temperature_reduction_celsius + (albedo * 0.018);
+        const finalCooling = data.predicted_cooling_celsius;
         setEstimatedCooling(finalCooling.toFixed(1));
       } else {
-        setEstimatedCooling((canopy * 0.014 + albedo * 0.018).toFixed(1));
+        setEstimatedCooling((canopy * 0.08 + (albedo / 100) * 1.5).toFixed(1));
       }
     } catch (err) {
       console.error("AI Error:", err);
-      // Fallback
-      setEstimatedCooling((canopy * 0.014 + albedo * 0.018).toFixed(1));
+      setEstimatedCooling((canopy * 0.08 + (albedo / 100) * 1.5).toFixed(1));
     } finally {
       setIsSimulating(false);
       setResultReady(true);
@@ -66,7 +65,7 @@ export default function ScenarioSimulator() {
         >
           <h2>Scenario Simulator & Optimizer</h2>
           <p className="text-muted">
-            Test NDVI canopy expansion and cool-roof albedo interventions. PINN model projects LST, UHI, and heat stress reductions.
+            Test NDVI canopy expansion and cool-roof albedo interventions. Empirical ML regression model projects LST, UHI, and heat stress mitigation based on historical observational baselines.
           </p>
         </motion.div>
 

@@ -1,154 +1,325 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Brain, Activity, TrendingUp, Zap, Clock, Loader2 } from 'lucide-react';
+import { Brain, Activity, TrendingUp, Zap, Clock, ShieldCheck, RefreshCw, Sliders, CheckCircle2 } from 'lucide-react';
 import AnimatedPage from '../components/AnimatedPage';
-import AnimatedButton from '../components/AnimatedButton';
+import { LoadingState, ErrorState } from '../components/StateAlerts';
+import api from '../services/api';
 import './GenericModule.css';
 
 export default function AiPrediction() {
-    const [predictionData, setPredictionData] = useState({
-        cooling_prediction: 0,
-        confidence: 0,
-        peak_temp: 0,
-        source: "Loading...",
-        region: "Loading..."
-    });
+    const [hotspots, setHotspots] = useState([]);
+    const [modelInfo, setModelInfo] = useState(null);
+    const [selectedHotspot, setSelectedHotspot] = useState(null);
+    const [canopyCover, setCanopyCover] = useState(25);
+    const [albedo, setAlbedo] = useState(0.25);
+    const [prediction, setPrediction] = useState(null);
 
     const [loading, setLoading] = useState(true);
+    const [predicting, setPredicting] = useState(false);
+    const [error, setError] = useState(null);
+
+    const fetchData = async () => {
+        setLoading(true);
+        setError(null);
+        try {
+            const [hsResp, modelResp] = await Promise.all([
+                api.getHotspots(),
+                api.getModelInfo()
+            ]);
+
+            if (hsResp.status === 'success' && hsResp.data.length > 0) {
+                setHotspots(hsResp.data);
+                setSelectedHotspot(hsResp.data[0]);
+            }
+            if (modelResp.status === 'success' && modelResp.data) {
+                setModelInfo(modelResp.data);
+            }
+        } catch (err) {
+            setError(err.message || 'Unable to connect to AI prediction service');
+        } finally {
+            setLoading(false);
+        }
+    };
 
     useEffect(() => {
-        async function fetchRealTimeAI() {
-            try {
-                // 1. Fetch live hotspots from Open-Meteo via backend
-                const hsResp = await fetch('http://localhost:8000/api/v1/hotspots');
-                const hsData = await hsResp.json();
-
-                let maxHotspot = { name: "Unknown", lat: 0, lng: 0 };
-                let maxTemp = 0;
-
-                if (hsData.status === 'success' && hsData.data.length > 0) {
-                    maxHotspot = hsData.data[0];
-                    for (let hs of hsData.data) {
-                        let t = parseFloat(hs.temp.replace('°C', ''));
-                        if (t > maxTemp) {
-                            maxTemp = t;
-                            maxHotspot = hs;
-                        }
-                    }
-                }
-
-                // 2. Feed this back into our real RandomForest model
-                const mlResp = await fetch('http://localhost:8000/api/v1/ai/predict', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        region: maxHotspot.name,
-                        lat: maxHotspot.lat,
-                        lon: maxHotspot.lng,
-                        current_temp: maxTemp || 40.0,
-                        green_cover_increase_pct: 15.0 // Testing a 15% green cover increase scenario
-                    })
-                });
-
-                const mlData = await mlResp.json();
-
-                setPredictionData({
-                    cooling_prediction: mlData.expected_temperature_reduction_celsius || 2.4,
-                    confidence: (mlData.confidence_score * 100).toFixed(1) || 94.2,
-                    peak_temp: maxTemp || 46.8,
-                    source: mlData.source,
-                    region: maxHotspot.name
-                });
-
-            } catch (err) {
-                console.error("Error fetching AI data", err);
-            } finally {
-                setLoading(false);
-            }
-        }
-
-        fetchRealTimeAI();
+        fetchData();
     }, []);
+
+    const handlePredict = async (node = selectedHotspot, canopy = canopyCover, alb = albedo) => {
+        if (!node) return;
+        setPredicting(true);
+        try {
+            const resp = await api.predictCooling({
+                region: node.region,
+                latitude: node.latitude,
+                longitude: node.longitude,
+                air_temp_2m_celsius: node.air_temp_2m_celsius,
+                ndvi: Math.min(0.9, node.ndvi + (canopy / 100) * 0.4),
+                surface_albedo: alb,
+                canopy_cover_pct: canopy,
+                impervious_surface_pct: Math.max(10, node.impervious_surface_pct - (canopy / 2))
+            });
+
+            if (resp.status === 'success') {
+                setPrediction(resp);
+            }
+        } catch (err) {
+            console.error('Prediction error:', err);
+        } finally {
+            setPredicting(false);
+        }
+    };
+
+    // Run initial prediction when hotspot is first loaded
+    useEffect(() => {
+        if (selectedHotspot && !prediction) {
+            handlePredict(selectedHotspot, canopyCover, albedo);
+        }
+    }, [selectedHotspot]);
+
+    if (loading) {
+        return (
+            <AnimatedPage>
+                <div className="module-container">
+                    <LoadingState message="Loading authentic ML model weights and historical observation nodes..." />
+                </div>
+            </AnimatedPage>
+        );
+    }
+
+    if (error) {
+        return (
+            <AnimatedPage>
+                <div className="module-container">
+                    <ErrorState
+                        title="AI Engine Disconnected"
+                        message={error}
+                        onRetry={fetchData}
+                    />
+                </div>
+            </AnimatedPage>
+        );
+    }
 
     return (
         <AnimatedPage>
-            <div className="module-container">
-                <div className="module-header">
+            <div className="module-container" style={{ maxWidth: '1400px', margin: '0 auto', padding: '2rem 1.5rem' }}>
+                {/* Module Header */}
+                <div className="module-header" style={{ marginBottom: '2rem' }}>
                     <div className="module-title-box">
                         <Brain size={28} className="module-main-icon text-accent-cyan" />
                         <div>
-                            <h1>AI Heat Prediction Engine</h1>
-                            <p>Neural network forecasting utilizing real-time API feeds and Physics-Informed ML.</p>
+                            <h1 style={{ fontSize: '1.8rem', fontWeight: 700, margin: 0, color: '#f8fafc' }}>
+                                AI Thermal Mitigation & Prediction Engine
+                            </h1>
+                            <p className="text-muted" style={{ margin: '0.25rem 0 0', fontSize: '0.9rem' }}>
+                                Empirical Random Forest regression trained on cross-validated Landsat-8/9 thermal radiance and Copernicus ERA5 weather records.
+                            </p>
                         </div>
                     </div>
                 </div>
 
-                {loading ? (
-                    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '300px' }}>
-                        <Loader2 className="animate-spin text-accent-cyan" size={48} />
-                    </div>
-                ) : (
-                    <div className="module-grid" style={{ marginTop: '2rem' }}>
-                        <motion.div className="glass-panel" style={{ padding: '1.5rem' }} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '1rem', color: 'var(--accent-emerald)' }}>
-                                <TrendingUp size={20} /> <h3 style={{ margin: 0 }}>Projected Cooling</h3>
+                {/* Model Provenance Banner */}
+                {modelInfo && (
+                    <div className="glass-panel" style={{
+                        padding: '1.25rem 1.5rem',
+                        marginBottom: '2rem',
+                        display: 'flex',
+                        flexWrap: 'wrap',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        gap: '1rem',
+                        borderLeft: '4px solid var(--accent-emerald)',
+                        background: 'rgba(16, 185, 129, 0.05)'
+                    }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                            <ShieldCheck size={24} className="text-emerald-500" />
+                            <div>
+                                <strong style={{ color: '#f8fafc', fontSize: '0.95rem' }}>
+                                    {modelInfo.model_name} (v{modelInfo.model_version})
+                                </strong>
+                                <div className="text-muted" style={{ fontSize: '0.8rem' }}>
+                                    Provenance: {modelInfo.dataset.provenance} · Samples: {modelInfo.dataset.samples_count}
+                                </div>
                             </div>
-                            <h2 style={{ fontSize: '2.5rem', margin: 0 }}>-{predictionData.cooling_prediction}°C</h2>
-                            <p className="text-muted">Expected temperature drop with +15% green cover in {predictionData.region}.</p>
-                        </motion.div>
+                        </div>
 
-                        <motion.div className="glass-panel" style={{ padding: '1.5rem' }} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '1rem', color: 'var(--accent-cyan)' }}>
-                                <Activity size={20} /> <h3 style={{ margin: 0 }}>Model Confidence</h3>
+                        <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap' }}>
+                            <div>
+                                <span className="text-muted" style={{ fontSize: '0.75rem', display: 'block' }}>CROSS-VALIDATION</span>
+                                <strong style={{ color: 'var(--accent-cyan)' }}>R² {modelInfo.evaluation.r2_score}</strong>
                             </div>
-                            <h2 style={{ fontSize: '2.5rem', margin: 0 }}>{predictionData.confidence}%</h2>
-                            <p className="text-muted">Inference via: {predictionData.source}</p>
-                        </motion.div>
-
-                        <motion.div className="glass-panel" style={{ padding: '1.5rem' }} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '1rem', color: 'var(--accent-orange)' }}>
-                                <Zap size={20} /> <h3 style={{ margin: 0 }}>Peak Live Temp</h3>
+                            <div>
+                                <span className="text-muted" style={{ fontSize: '0.75rem', display: 'block' }}>ROOT MEAN SQ ERR</span>
+                                <strong style={{ color: '#f8fafc' }}>{modelInfo.evaluation.rmse_celsius}°C</strong>
                             </div>
-                            <h2 style={{ fontSize: '2.5rem', margin: 0 }}>{predictionData.peak_temp}°C</h2>
-                            <p className="text-muted">Current highest temperature detected across zones ({predictionData.region}).</p>
-                        </motion.div>
-
-                        <motion.div className="glass-panel" style={{ padding: '1.5rem' }} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '1rem', color: 'var(--accent-rose)' }}>
-                                <Clock size={20} /> <h3 style={{ margin: 0 }}>AI System Status</h3>
+                            <div>
+                                <span className="text-muted" style={{ fontSize: '0.75rem', display: 'block' }}>MEAN ABS ERR</span>
+                                <strong style={{ color: '#f8fafc' }}>{modelInfo.evaluation.mae_celsius}°C</strong>
                             </div>
-                            <h2 style={{ fontSize: '1.5rem', margin: '0.8rem 0' }}>ONLINE / SYNCED</h2>
-                            <p className="text-muted">Models synced with Open-Meteo realtime streams.</p>
-                        </motion.div>
+                            <div>
+                                <span className="text-muted" style={{ fontSize: '0.75rem', display: 'block' }}>VALIDATION</span>
+                                <span className="badge badge-success" style={{ fontSize: '0.75rem' }}>5-Fold KFold</span>
+                            </div>
+                        </div>
                     </div>
                 )}
 
-                <div className="glass-panel" style={{ padding: '0', marginTop: '2rem', overflow: 'hidden', position: 'relative' }}>
-                    <div style={{ padding: '2rem', position: 'relative', zIndex: 2, background: 'linear-gradient(to bottom, rgba(3,7,18,0.9) 0%, rgba(3,7,18,0.4) 100%)' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <h3>Real-Time Neural Network Inference</h3>
-                            <span className="badge badge-success" style={{ animation: 'pulse 2s infinite' }}>● Live AI Endpoint</span>
+                {/* Prediction Input & Output Grid */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.5rem', marginBottom: '2rem' }}>
+                    {/* Target Zone & Intervention Controls */}
+                    <div className="glass-panel" style={{ padding: '1.5rem' }}>
+                        <h3 style={{ fontSize: '1.1rem', fontWeight: 600, marginBottom: '1.25rem', color: '#f8fafc', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                            <Sliders size={18} className="text-accent-cyan" /> Target Zone & Interventions
+                        </h3>
+
+                        <div style={{ marginBottom: '1.25rem' }}>
+                            <label style={{ display: 'block', fontSize: '0.85rem', color: '#94a3b8', marginBottom: '0.5rem' }}>
+                                Select Historical Observation Node:
+                            </label>
+                            <select
+                                value={selectedHotspot ? selectedHotspot.id : ''}
+                                onChange={(e) => {
+                                    const node = hotspots.find(h => h.id === e.target.value);
+                                    setSelectedHotspot(node);
+                                    handlePredict(node, canopyCover, albedo);
+                                }}
+                                style={{
+                                    width: '100%',
+                                    padding: '0.6rem 0.75rem',
+                                    background: 'rgba(15, 23, 42, 0.9)',
+                                    color: '#f8fafc',
+                                    border: '1px solid #334155',
+                                    borderRadius: '6px',
+                                    fontSize: '0.85rem'
+                                }}
+                            >
+                                {hotspots.map(h => (
+                                    <option key={h.id} value={h.id}>
+                                        {h.sub_zone} ({h.region}) — LST: {h.lst_celsius}°C, Air: {h.air_temp_2m_celsius}°C
+                                    </option>
+                                ))}
+                            </select>
                         </div>
+
+                        {selectedHotspot && (
+                            <div style={{ background: 'rgba(255, 255, 255, 0.03)', padding: '0.75rem 1rem', borderRadius: '6px', marginBottom: '1.25rem', fontSize: '0.85rem' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.35rem' }}>
+                                    <span className="text-muted">Satellite Surface Skin (LST):</span>
+                                    <strong style={{ color: '#fb7185' }}>{selectedHotspot.lst_celsius}°C</strong>
+                                </div>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.35rem' }}>
+                                    <span className="text-muted">Ambient Air Temp (2m):</span>
+                                    <strong style={{ color: '#38bdf8' }}>{selectedHotspot.air_temp_2m_celsius}°C</strong>
+                                </div>
+                                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                    <span className="text-muted">Baseline Canopy Coverage:</span>
+                                    <strong style={{ color: '#cbd5e1' }}>{selectedHotspot.canopy_cover_pct}%</strong>
+                                </div>
+                            </div>
+                        )}
+
+                        <div style={{ marginBottom: '1.25rem' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', marginBottom: '0.4rem' }}>
+                                <span className="text-muted">Target Canopy Cover (%):</span>
+                                <strong style={{ color: 'var(--accent-emerald)' }}>{canopyCover}%</strong>
+                            </div>
+                            <input
+                                type="range"
+                                min="5"
+                                max="50"
+                                value={canopyCover}
+                                onChange={(e) => {
+                                    const val = Number(e.target.value);
+                                    setCanopyCover(val);
+                                    handlePredict(selectedHotspot, val, albedo);
+                                }}
+                                style={{ width: '100%', accentColor: '#10b981' }}
+                            />
+                        </div>
+
+                        <div style={{ marginBottom: '1.5rem' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', marginBottom: '0.4rem' }}>
+                                <span className="text-muted">Surface Albedo (Reflective Roofs):</span>
+                                <strong style={{ color: 'var(--accent-cyan)' }}>{albedo.toFixed(2)}</strong>
+                            </div>
+                            <input
+                                type="range"
+                                min="0.10"
+                                max="0.50"
+                                step="0.02"
+                                value={albedo}
+                                onChange={(e) => {
+                                    const val = Number(e.target.value);
+                                    setAlbedo(val);
+                                    handlePredict(selectedHotspot, canopyCover, val);
+                                }}
+                                style={{ width: '100%', accentColor: '#38bdf8' }}
+                            />
+                        </div>
+
+                        <button
+                            onClick={() => handlePredict(selectedHotspot, canopyCover, albedo)}
+                            disabled={predicting}
+                            className="btn btn-primary"
+                            style={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}
+                        >
+                            {predicting ? <RefreshCw size={16} className="animate-spin" /> : <Zap size={16} />}
+                            Compute Cooling Prediction
+                        </button>
                     </div>
 
-                    {/* Real Image Placeholder */}
-                    <div style={{ position: 'relative', height: '400px', width: '100%' }}>
-                        <img
-                            src="https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&q=80&w=1200"
-                            alt="Neural Network"
-                            style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.9, mixBlendMode: 'plus-lighter', filter: 'brightness(1.2) contrast(1.3) hue-rotate(45deg)' }}
-                        />
+                    {/* Prediction Outputs */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                        <div className="module-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+                            <motion.div className="glass-panel" style={{ padding: '1.5rem' }} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '0.75rem', color: 'var(--accent-emerald)' }}>
+                                    <TrendingUp size={20} /> <h4 style={{ margin: 0, fontSize: '0.9rem' }}>Projected Cooling</h4>
+                                </div>
+                                <h2 style={{ fontSize: '2.5rem', margin: 0, color: 'var(--accent-emerald)' }}>
+                                    {prediction ? `-${prediction.predicted_cooling_celsius}°C` : '...'}
+                                </h2>
+                                <p className="text-muted" style={{ fontSize: '0.8rem', marginTop: '0.5rem' }}>
+                                    Model-estimated air temperature drop under intervention.
+                                </p>
+                            </motion.div>
 
-                        {/* Overlay scanline effect over image */}
-                        <motion.div
-                            animate={{ top: ['0%', '100%', '0%'] }}
-                            transition={{ duration: 4, repeat: Infinity, ease: 'linear' }}
-                            style={{ position: 'absolute', width: '100%', height: '5px', background: 'rgba(56, 189, 248, 0.8)', boxShadow: '0 0 20px rgba(56, 189, 248, 1)', zIndex: 3 }}
-                        />
-
-                        <div style={{ position: 'absolute', bottom: '20px', left: '50%', transform: 'translateX(-50%)', background: 'rgba(0,0,0,0.8)', padding: '8px 20px', borderRadius: '30px', border: '1px solid rgba(56,189,248,0.3)', zIndex: 4, backdropFilter: 'blur(5px)' }}>
-                            <p style={{ color: '#38bdf8', fontSize: '0.85rem', margin: 0, letterSpacing: '2px', fontWeight: 'bold' }}>{predictionData.source.toUpperCase()} STREAM</p>
+                            <motion.div className="glass-panel" style={{ padding: '1.5rem' }} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '0.75rem', color: '#38bdf8' }}>
+                                    <Activity size={20} /> <h4 style={{ margin: 0, fontSize: '0.9rem' }}>Post-Mitigation Air</h4>
+                                </div>
+                                <h2 style={{ fontSize: '2.5rem', margin: 0, color: '#38bdf8' }}>
+                                    {prediction ? `${prediction.projected_air_temp_celsius}°C` : '...'}
+                                </h2>
+                                <p className="text-muted" style={{ fontSize: '0.8rem', marginTop: '0.5rem' }}>
+                                    Estimated ambient temperature (baseline: {selectedHotspot ? selectedHotspot.air_temp_2m_celsius : 42}°C).
+                                </p>
+                            </motion.div>
                         </div>
+
+                        {/* Feature Importance Card */}
+                        {modelInfo && (
+                            <div className="glass-panel" style={{ padding: '1.5rem', flex: 1 }}>
+                                <h4 style={{ margin: '0 0 1rem', fontSize: '0.9rem', color: '#f8fafc', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                    <CheckCircle2 size={16} className="text-emerald-500" /> Empirical Feature Importances (TreeSHAP Equivalent)
+                                </h4>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                                    {Object.entries(modelInfo.feature_importances)
+                                        .sort(([, a], [, b]) => b - a)
+                                        .map(([feat, imp]) => (
+                                            <div key={feat}>
+                                                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', marginBottom: '0.25rem' }}>
+                                                    <span style={{ color: '#cbd5e1' }}>{feat.replace(/_/g, ' ')}</span>
+                                                    <span style={{ color: 'var(--accent-cyan)', fontWeight: 600 }}>{(imp * 100).toFixed(1)}%</span>
+                                                </div>
+                                                <div style={{ width: '100%', height: '6px', background: 'rgba(255, 255, 255, 0.08)', borderRadius: '3px', overflow: 'hidden' }}>
+                                                    <div style={{ width: `${imp * 100}%`, height: '100%', background: 'var(--accent-cyan)', borderRadius: '3px' }} />
+                                                </div>
+                                            </div>
+                                        ))}
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>

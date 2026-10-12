@@ -17,20 +17,20 @@ export default function DriverAnalysis() {
   return (
     <AnimatedPage>
       <div className="container">
-        <motion.div 
+        <motion.div
           className="header-section"
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           style={{ marginBottom: '2rem' }}
         >
-          <h2>SHAP Value Driver Analysis</h2>
+          <h2>TreeSHAP Feature Attribution Analysis</h2>
           <p className="text-muted">
-            Physics-Informed ML quantifies how LST, albedo, NDVI, impervious cover, and canyon geometry drive local heat stress in the Downtown District.
+            Empirical feature attributions derived from the cross-validated Random Forest regressor, quantifying the contribution of NDVI, canopy coverage, impervious surface, and albedo across monitored urban corridors.
           </p>
         </motion.div>
 
         <div className="grid-2">
-          <motion.div 
+          <motion.div
             className="glass-panel"
             style={{ padding: '2rem' }}
             initial={{ opacity: 0, scale: 0.95 }}
@@ -39,12 +39,12 @@ export default function DriverAnalysis() {
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '2rem' }}>
               <Brain className="text-accent-cyan" />
-              <h3>AI Explanation (Downtown District)</h3>
+              <h3>TreeSHAP Attributions (Urban Heat Corridors)</h3>
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
               {drivers.map((driver, i) => (
-                <motion.div 
+                <motion.div
                   key={i}
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
@@ -61,7 +61,7 @@ export default function DriverAnalysis() {
                     </div>
                   </div>
                   <div style={{ width: '100%', height: '8px', background: 'rgba(255,255,255,0.1)', borderRadius: '4px', overflow: 'hidden' }}>
-                    <motion.div 
+                    <motion.div
                       style={{ height: '100%', background: driver.color, borderRadius: '4px' }}
                       initial={{ width: 0 }}
                       animate={{ width: driver.width }}
@@ -73,7 +73,7 @@ export default function DriverAnalysis() {
             </div>
           </motion.div>
 
-          <motion.div 
+          <motion.div
             style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}

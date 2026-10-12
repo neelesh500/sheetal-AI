@@ -33,7 +33,7 @@ export default function Home() {
   return (
     <AnimatedPage>
       <div className="container hero-section">
-        <motion.div 
+        <motion.div
           className="hero-content"
           variants={containerVariants}
           initial="hidden"
@@ -42,16 +42,16 @@ export default function Home() {
           <motion.div variants={itemVariants} className="badge">
             <span className="pulse"></span> AIML Powered Heat Mitigation
           </motion.div>
-          
+
           <motion.h1 variants={itemVariants} className="hero-title">
             Cooling Cities with <br />
-            <span className="text-gradient-cool">Physics-Informed AI</span>
+            <span className="text-gradient-cool">Empirical Machine Learning</span>
           </motion.h1>
-          
+
           <motion.p variants={itemVariants} className="hero-subtitle">
-            Fuse LST, NDVI, UHI, and albedo satellite layers with Physics-Informed ML to map heat stress, explain drivers, and optimize cooling interventions for {cityOverview.name}.
+            Fuse Landsat LST, NDVI, UHI, and albedo satellite layers with cross-validated Machine Learning to map heat stress, explain drivers, and optimize cooling interventions.
           </motion.p>
-          
+
           <motion.div variants={itemVariants} className="hero-actions">
             <AnimatedButton to="/heatmap" variant="primary">
               Launch Heat Map <ArrowRight size={18} />
@@ -62,7 +62,7 @@ export default function Home() {
           </motion.div>
         </motion.div>
 
-        <motion.div 
+        <motion.div
           className="hero-visual"
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}

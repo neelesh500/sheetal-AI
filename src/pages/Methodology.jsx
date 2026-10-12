@@ -37,7 +37,7 @@ export default function Methodology() {
             <div>
               <h2>Methodology & Data Dictionary</h2>
               <p className="text-muted">
-                Technical reference for satellite layers, heat stress indices, and Physics-Informed ML used in {cityOverview.name} ({cityOverview.studyPeriod}).
+                Technical reference for satellite layers, heat stress indices, and Empirical Machine Learning used across metropolitan heat corridors.
               </p>
             </div>
           </div>
