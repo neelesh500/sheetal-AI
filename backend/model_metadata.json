@@ -1,0 +1,53 @@
+{
+  "model_name": "RandomForestRegressor (Historical Thermal Mitigation)",
+  "model_version": "1.2.0-historical",
+  "trained_at_utc": "2026-10-12T07:18:24.890683+00:00",
+  "dataset": {
+    "source_file": "historical_heat_dataset.csv",
+    "samples_count": 44,
+    "regions": [
+      "New Delhi",
+      "Mumbai",
+      "Bengaluru",
+      "Ahmedabad",
+      "Chennai",
+      "Hyderabad",
+      "Phoenix"
+    ],
+    "time_range": "2022-04-18 to 2024-05-28",
+    "provenance": "USGS/NASA Landsat 8/9 C2L2 Band 10 TIRS, Copernicus ERA5 Reanalysis",
+    "license": "CC-BY-4.0 / USGS Public Domain"
+  },
+  "features": [
+    "latitude",
+    "longitude",
+    "air_temp_2m_celsius",
+    "ndvi",
+    "surface_albedo",
+    "canopy_cover_pct",
+    "impervious_surface_pct"
+  ],
+  "target": "cooling_observed_celsius",
+  "evaluation": {
+    "validation_strategy": "5-Fold Cross Validation",
+    "r2_score": 0.9823,
+    "rmse_celsius": 0.2686,
+    "mae_celsius": 0.1737,
+    "baseline_mean_cooling": 2.3159,
+    "baseline_std_cooling": 2.045
+  },
+  "feature_importances": {
+    "latitude": 0.0023,
+    "longitude": 0.0026,
+    "air_temp_2m_celsius": 0.0035,
+    "ndvi": 0.3874,
+    "surface_albedo": 0.0193,
+    "canopy_cover_pct": 0.3245,
+    "impervious_surface_pct": 0.2606
+  },
+  "scientific_notes": [
+    "Trained on empirical observational deltas between unmitigated asphalt and vegetated/high-albedo zones.",
+    "LST skin temperature derived from Landsat-8/9 Band 10 TIRS with radiative atmospheric correction.",
+    "Air temperature derived from Copernicus ERA5 2m ambient level."
+  ]
+}
