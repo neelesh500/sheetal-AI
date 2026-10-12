@@ -3,6 +3,8 @@ import { useFrame } from '@react-three/fiber';
 import { Sphere, Stars, useTexture } from '@react-three/drei';
 import * as THREE from 'three';
 
+import api from '../services/api';
+
 export default function GlobeComponent({ onHotspotClick }) {
     const earthRef = useRef();
     const cloudsRef = useRef();
@@ -14,10 +16,6 @@ export default function GlobeComponent({ onHotspotClick }) {
     const getPositionFromLatLng = (lat, lng, radius) => {
         const phi = (90 - lat) * (Math.PI / 180);
         const theta = (lng + 180) * (Math.PI / 180);
-
-        // We want India to be roughly facing the camera initially. The Three.js sphere coords:
-        // This maps standard lat/lng to a sphere but we might have to adjust rotation to match the texture map.
-        // ThreeJS SphereGeometry default UV mapping usually requires this mapping or similar.
         const x = -(radius * Math.sin(phi) * Math.cos(theta));
         const z = (radius * Math.sin(phi) * Math.sin(theta));
         const y = (radius * Math.cos(phi));
@@ -27,8 +25,7 @@ export default function GlobeComponent({ onHotspotClick }) {
     const [hotspots, setHotspots] = React.useState([]);
 
     React.useEffect(() => {
-        fetch('http://localhost:8000/api/v1/hotspots')
-            .then(res => res.json())
+        api.getHotspots()
             .then(data => {
                 if (data.status === 'success' && data.data) {
                     setHotspots(data.data);
@@ -50,18 +47,41 @@ export default function GlobeComponent({ onHotspotClick }) {
             const lng = (e.uv.x * 360) - 180;
             const lat = (e.uv.y * 180) - 90;
 
-            // Generate standard microclimate text as requested
-            const isWarningZone = lat > -20 && lat < 40;
+            // Find nearest authentic historical hotspot node
+            let closest = null;
+            let minDist = Infinity;
+            for (const spot of hotspots) {
+                const dLat = (spot.latitude || spot.lat) - lat;
+                const dLng = (spot.longitude || spot.lng) - lng;
+                const dist = Math.sqrt(dLat * dLat + dLng * dLng);
+                if (dist < minDist) {
+                    minDist = dist;
+                    closest = spot;
+                }
+            }
 
-            onHotspotClick({
-                id: `dynamic-${Math.random().toString(36).substr(2, 9)}`,
-                name: `Global Grid Sector (${lat.toFixed(2)}°, ${lng.toFixed(2)}°)`,
-                lat: lat,
-                lng: lng,
-                temp: (34 + Math.abs(lat * 0.28)).toFixed(1) + '°C',
-                anomaly: isWarningZone ? 'Warning (+4.1°C)' : 'Nominal (+1.0°C)',
-                desc: 'Multispectral thermal infrared sensors detect standard urban thermal radiance.'
-            });
+            if (closest && minDist < 25) {
+                onHotspotClick({
+                    id: closest.id || closest.record_id,
+                    name: `${closest.sub_zone} (${closest.region})`,
+                    lat: closest.latitude || closest.lat,
+                    lng: closest.longitude || closest.lng,
+                    temp: `${closest.lst_celsius.toFixed(1)}°C (LST)`,
+                    airTemp: `${closest.air_temp_2m_celsius.toFixed(1)}°C (Air)`,
+                    anomaly: `+${closest.uhi_surface_anomaly_celsius.toFixed(1)}°C UHI`,
+                    desc: `Sensor: ${closest.satellite_sensor || 'Landsat-8/9 TIRS'}. Surface LST: ${closest.lst_celsius.toFixed(1)}°C vs Ambient Air: ${closest.air_temp_2m_celsius.toFixed(1)}°C.`
+                });
+            } else {
+                onHotspotClick({
+                    id: `global-${lat.toFixed(1)}-${lng.toFixed(1)}`,
+                    name: `Global Sector (${lat.toFixed(2)}°, ${lng.toFixed(2)}°)`,
+                    lat: lat,
+                    lng: lng,
+                    temp: 'Nominal Ocean/Rural Basemap',
+                    anomaly: 'Baseline (0.0°C)',
+                    desc: 'Clear sky multispectral baseline radiance outside monitored metropolitan clusters.'
+                });
+            }
         }
     };
 

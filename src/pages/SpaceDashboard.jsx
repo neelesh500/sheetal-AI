@@ -113,10 +113,10 @@ export default function SpaceDashboard() {
             title: 'AI Prediction Model',
             badge: 'Active',
             badgeClass: 'badge-warning',
-            desc: 'Neural network forecasting 48-hour peak temperatures with high accuracy based on historical climate data.',
+            desc: 'Empirical Random Forest regression forecasting urban cooling potential based on historical multispectral observations.',
             btnText: 'Open AI Engine',
             path: '/prediction',
-            toast: 'Initializing Deep Neural Network LST Forecaster...',
+            toast: 'Initializing Empirical ML Cooling Engine...',
             accent: true
         },
         {
@@ -228,6 +228,9 @@ export default function SpaceDashboard() {
                         <div className="modal-content">
                             <p><strong>Exact Coordinates:</strong> {activeHotspot.lat.toFixed(4)}° N, {activeHotspot.lng.toFixed(4)}° E</p>
                             <p><strong>Surface Temperature (LST):</strong> <span style={{ color: 'var(--accent-orange, #f97316)', fontWeight: 'bold' }}>{activeHotspot.temp}</span></p>
+                            {activeHotspot.airTemp && (
+                                <p><strong>Ambient Air Temp (2m):</strong> <span style={{ color: '#38bdf8', fontWeight: 'bold' }}>{activeHotspot.airTemp}</span></p>
+                            )}
                             <p><strong>Thermal Status:</strong> <span className={`badge-critical ${activeHotspot.anomaly?.includes('Critical') || activeHotspot.anomaly?.includes('Warning') ? 'warning' : 'stable'}`}>{activeHotspot.anomaly}</span></p>
                             <p style={{ marginTop: '8px' }}><strong>AI Analysis:</strong> {activeHotspot.desc}</p>
 
