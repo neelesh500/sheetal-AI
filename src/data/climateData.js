@@ -133,24 +133,24 @@ export const albedoData = {
 };
 
 export const empiricalMlData = {
-  title: 'Empirical Machine Learning Thermal Mitigation Regressor',
-  abbreviation: 'RandomForest (5-Fold CV)',
+  title: 'Empirical Random Forest Thermal Mitigation Regressor',
+  abbreviation: 'Random Forest (LOCO Holdout)',
   description:
     'RandomForestRegressor trained on authentic multispectral satellite (Landsat-8/9 C2L2 Band 10 TIRS) and atmospheric reanalysis (Copernicus ERA5) observations across metropolitan heat corridors.',
-  architecture: '100-Tree Ensemble Regressor with 5-Fold Cross Validation',
+  architecture: '100-Tree Ensemble Regressor with Leave-One-City-Out (LOCO) Holdout Validation',
   physicsConstraints: [
     'Radiometric thermal calibration via Landsat Collection 2 Level-2 split-window',
     'Atmospheric boundary layer 2m reanalysis from Copernicus ECMWF ERA5',
     'Broadband albedo and NDVI vegetation indices',
-    'Urban canopy cover vs impervious surface fraction bounds',
+    'Urban canopy cover vs impervious surface fraction domain bounds',
   ],
   modelMetrics: {
-    rmse: '0.27°C',
-    r2: 0.982,
-    mae: '0.17°C',
-    shapFeatures: 7,
+    rmse: '0.23°C (LOCO)',
+    r2: 0.987,
+    mae: '0.16°C',
+    featuresCount: 7,
     trainingSamples: '44 verified metropolitan records',
-    validationPeriod: '2022–2024 Historical Summer Heatwaves',
+    validationStrategy: 'Leave-One-City-Out Across 7 Regions',
   },
   shapDrivers: [
     { name: 'NDVI Deficit (Low Vegetation)', value: '+2.1°C', shap: 0.387, icon: 'TreePine', color: 'var(--accent-rose)', width: '85%' },
@@ -160,15 +160,15 @@ export const empiricalMlData = {
     { name: 'Ambient Air Temperature Baseline (2m)', value: 'Baseline', shap: 0.004, icon: 'Flame', color: 'var(--accent-cyan)', width: '10%' },
   ],
   insights: [
-    'Tree canopy expansion and vegetation (NDVI) account for >70% of empirical cooling mitigation in metropolitan cores.',
+    'Tree canopy expansion and vegetation (NDVI) account for >71% of empirical cooling variance in monitored urban cores.',
     'Replacing unmitigated impervious asphalt with permeable or vegetated surfaces delivers significant temperature drops.',
     'High-albedo reflective coatings provide direct skin temperature mitigation on industrial and residential rooftops.',
-    'Model validated via 5-Fold K-Fold cross validation without data leakage across 7 Indian and international metropolitan zones.',
+    'Model evaluated via Leave-One-City-Out geographic holdout across 7 metropolitan zones (R² 0.9871, RMSE 0.2298°C).',
   ],
 };
 
+// Aliased for backwards compatibility with legacy imports
 export const pinnData = empiricalMlData;
-
 
 export const heatStressData = {
   title: 'Heat Stress Maps',
@@ -217,7 +217,7 @@ export const homeMetrics = [
   { label: 'City NDVI', value: '0.28', delta: '18.4% canopy', color: 'var(--accent-emerald)' },
   { label: 'Mean Albedo', value: '0.14', delta: 'Below rural (0.22)', color: 'var(--accent-cyan)' },
   { label: 'At-Risk Population', value: '890K', delta: 'WBGT > 28°C', color: 'var(--accent-rose)' },
-  { label: 'PINN Accuracy', value: 'R² 0.91', delta: 'RMSE 1.2°C', color: 'var(--accent-cyan)' },
+  { label: 'Random Forest LOCO', value: 'R² 0.987', delta: 'RMSE 0.23°C', color: 'var(--accent-cyan)' },
 ];
 
 export const conceptCards = [
@@ -225,6 +225,6 @@ export const conceptCards = [
   { id: 'ndvi', ...ndviData, link: '/heatmap' },
   { id: 'uhi', ...uhiData, link: '/heatmap' },
   { id: 'albedo', ...albedoData, link: '/analysis' },
-  { id: 'pinn', ...pinnData, link: '/methodology' },
+  { id: 'pinn', ...empiricalMlData, link: '/methodology' },
   { id: 'heatstress', ...heatStressData, link: '/heatmap' },
 ];

@@ -108,7 +108,7 @@ export default function Methodology() {
 
               {data.physicsConstraints && (
                 <div className="physics-constraints" style={{ marginTop: '1.25rem' }}>
-                  <span className="text-muted">Physics constraints in PINN loss:</span>
+                  <span className="text-muted">Physical calibration constraints & boundary conditions:</span>
                   <ul className="constraint-list">
                     {data.physicsConstraints.map((c) => (
                       <li key={c}>{c}</li>

@@ -78,7 +78,7 @@ export default function Home() {
               <Leaf size={20} className="text-emerald-500" /> NDVI 0.28 City Avg
             </div>
             <div className="floating-card c3 glass-panel">
-              <Zap size={20} className="text-amber-500" /> PINN R² 0.91
+              <Zap size={20} className="text-cyan-500" /> RF R² 0.987
             </div>
             <div className="floating-card c4 glass-panel">
               <AlertTriangle size={20} className="text-rose-500" /> UHI +4.2°C

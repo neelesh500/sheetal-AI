@@ -1,64 +1,38 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
-import toast from 'react-hot-toast';
 import {
-    Globe, Satellite, Brain, Map, Thermometer, Wind, AlertTriangle, Database,
-    Sliders, FileText, Bell, MapPin, Users, Code, BookOpen, Settings, Activity, LifeBuoy, Compass
+    Globe, Satellite, Brain, Map, Thermometer, Wind, Database,
+    Sliders, BookOpen, Settings
 } from 'lucide-react';
 import './Sidebar.css';
+import api from '../services/api';
 
-// Reordered and grouped routes for high-end structure
 export const routeCategories = [
     {
-        title: "COMMAND CORE",
+        title: "CORE WORKFLOWS",
         routes: [
-            { path: '/', label: '3D Earth & Dashboard', icon: Globe },
-            { path: '/satellite-scan', label: 'Cyber Target Scan', icon: Compass },
-            { path: '/satellite', label: 'Satellite EO Feeds', icon: Satellite },
-            { path: '/mapping', label: 'Thermal Target Mapping', icon: Map },
-            { path: '/prediction', label: 'AI Heat Prediction', icon: Brain }
+            { path: '/', label: '3D Earth & Hotspots', icon: Globe },
+            { path: '/mapping', label: 'Thermal Heat Map', icon: Map },
+            { path: '/datasets', label: 'Dataset Provenance', icon: Database },
+            { path: '/prediction', label: 'Validated Prediction', icon: Brain },
+            { path: '/simulator', label: 'Intervention Simulator', icon: Sliders }
         ]
     },
     {
-        title: "INTELLIGENCE ENGINE",
+        title: "SCIENTIFIC ANALYTICS",
         routes: [
-            { path: '/ml-models', label: 'ML Models', icon: Settings },
-            { path: '/deep-learning', label: 'Deep Learning', icon: Brain },
-            { path: '/voice-command', label: 'Voice Command', icon: Wind }
+            { path: '/analytics', label: 'Feature Drivers (MDI)', icon: Thermometer },
+            { path: '/satellite', label: 'Satellite Thermal Catalog', icon: Satellite },
+            { path: '/mitigation', label: 'Cooling Strategies', icon: Wind },
+            { path: '/docs', label: 'Methodology & Data Card', icon: BookOpen }
         ]
     },
     {
-        title: "ANALYTICS & METRICS",
+        title: "MODEL ARCHITECTURE & ROADMAP",
         routes: [
-            { path: '/analytics', label: 'Thermal Analytics', icon: Thermometer },
-            { path: '/simulator', label: 'Scenario Simulator', icon: Sliders },
-            { path: '/datasets', label: 'Bhuvan/Landsat Datasets', icon: Database },
-            { path: '/gis', label: 'GIS Integrations', icon: MapPin }
-        ]
-    },
-    {
-        title: "OPERATIONS",
-        routes: [
-            { path: '/alerts', label: 'Real-Time Alerts', icon: Bell },
-            { path: '/mitigation', label: 'Cooling Deployment', icon: Wind },
-            { path: '/impact', label: 'Climate Matrix', icon: AlertTriangle },
-            { path: '/reports', label: 'Automated Reports', icon: FileText }
-        ]
-    },
-    {
-        title: "SYSTEM ARCHITECTURE",
-        routes: [
-            { path: '/logs', label: 'Telemetry Logs', icon: Activity },
-            { path: '/api', label: 'API / Webhooks', icon: Code },
-            { path: '/settings', label: 'Platform Settings', icon: Settings }
-        ]
-    },
-    {
-        title: "MISSION & SUPPORT",
-        routes: [
-            { path: '/team', label: 'Team & Mission', icon: Users },
-            { path: '/docs', label: 'Docs & Procedures', icon: BookOpen },
-            { path: '/support', label: 'Help & Support', icon: LifeBuoy }
+            { path: '/ml-models', label: 'Active Random Forest Card', icon: Settings },
+            { path: '/deep-learning', label: 'Planned Architectures', icon: Brain },
+            { path: '/voice-command', label: 'Voice Accessibility', icon: Wind }
         ]
     }
 ];
@@ -66,10 +40,33 @@ export const routeCategories = [
 export const routesConfig = routeCategories.flatMap(c => c.routes);
 
 export default function Sidebar() {
-    const handleNavClick = (label) => {
-        // Sound simulator effect via toast notification
-        toast(`Initializing link to [ ${label.toUpperCase()} ]...`, { icon: '📡', style: { background: '#09090b', color: '#e4e4e7', border: '1px solid #27272a' } });
-    };
+    const [apiStatus, setApiStatus] = useState('checking');
+    const [modelReady, setModelReady] = useState(false);
+    const [recordCount, setRecordCount] = useState(0);
+
+    useEffect(() => {
+        const checkStatus = async () => {
+            try {
+                const data = await api.getStatus();
+                if (data && data.status === 'online') {
+                    setApiStatus('online');
+                    setModelReady(data.ml_ready || false);
+                    setRecordCount(data.records_count || 0);
+                } else {
+                    setApiStatus('degraded');
+                }
+            } catch {
+                setApiStatus('offline');
+            }
+        };
+
+        checkStatus();
+        const interval = setInterval(checkStatus, 15000); // check every 15s
+        return () => clearInterval(interval);
+    }, []);
+
+    const statusColor = apiStatus === 'online' ? 'var(--accent-emerald)' : apiStatus === 'degraded' ? '#f59e0b' : '#f43f5e';
+    const statusText = apiStatus === 'online' ? 'ONLINE' : apiStatus === 'degraded' ? 'DEGRADED' : 'OFFLINE';
 
     return (
         <div className="sidebar-container">
@@ -78,7 +75,7 @@ export default function Sidebar() {
                     <h2 className="sidebar-logo">SHEETAL.AI</h2>
                     <div className="pulse-dot"></div>
                 </div>
-                <div className="sidebar-badge">ISRO <span>// BHARTIYA ANTARIKSH</span></div>
+                <div className="sidebar-badge">CLIMATE AI <span>// URBAN LAB</span></div>
             </div>
 
             <div className="sidebar-nav">
@@ -92,7 +89,6 @@ export default function Sidebar() {
                                     <NavLink
                                         key={route.path}
                                         to={route.path}
-                                        onClick={() => handleNavClick(route.label)}
                                         className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
                                     >
                                         <div className="nav-item-icon-wrapper">
@@ -110,14 +106,24 @@ export default function Sidebar() {
 
             <div className="sidebar-footer">
                 <div className="system-status">
-                    <span className="status-label">SYS_STATE:</span>
-                    <span className="status-value">NOMINAL</span>
+                    <span className="status-label">API_STATE:</span>
+                    <span className="status-value" style={{ color: statusColor }}>{statusText}</span>
                 </div>
+                {apiStatus === 'online' && (
+                    <div style={{ fontSize: '0.68rem', color: '#475569', marginTop: '3px' }}>
+                        ML: {modelReady ? '✓ Loaded' : '✗ Missing'} · N={recordCount} nodes
+                    </div>
+                )}
+                {apiStatus === 'offline' && (
+                    <div style={{ fontSize: '0.68rem', color: '#f43f5e', marginTop: '3px' }}>
+                        Run: python -m uvicorn main:app
+                    </div>
+                )}
                 <div className="connection-bars">
-                    <div className="bar full"></div>
-                    <div className="bar full"></div>
-                    <div className="bar full"></div>
-                    <div className="bar half"></div>
+                    <div className={`bar ${apiStatus !== 'offline' ? 'full' : ''}`}></div>
+                    <div className={`bar ${apiStatus !== 'offline' ? 'full' : ''}`}></div>
+                    <div className={`bar ${apiStatus === 'online' ? 'full' : ''}`}></div>
+                    <div className={`bar ${apiStatus === 'online' && modelReady ? 'full' : ''}`}></div>
                 </div>
             </div>
         </div>

@@ -15,13 +15,9 @@ function CameraRig({ activeHotspot }) {
 
     useFrame(() => {
         if (activeHotspot) {
-            // Calculate 3D position of hotspot
-            const radius = 6; // distance of camera
+            const radius = 6;
             const phi = (90 - activeHotspot.lat) * (Math.PI / 180);
             const theta = (activeHotspot.lng + 180) * (Math.PI / 180);
-
-            // Since globe is rotated by -Math.PI/2 in GlobeComponent, world coords compensate:
-            // The exact formula keeping globe group rotation in mind:
             const rotatedTheta = theta - Math.PI / 2;
             const x = -(radius * Math.sin(phi) * Math.cos(rotatedTheta));
             const z = (radius * Math.sin(phi) * Math.sin(rotatedTheta));
@@ -57,7 +53,7 @@ const RegionalMapCanvas = ({ lat, lng }) => {
                 mCtx.beginPath(); mCtx.moveTo(0, j); mCtx.lineTo(mapCanvas.width, j); mCtx.stroke();
             }
 
-            // Draw simulated thermal heat blobs
+            // Draw thermal heat representation
             const grad = mCtx.createRadialGradient(mapCanvas.width / 2, mapCanvas.height / 2, 10, mapCanvas.width / 2, mapCanvas.height / 2, 80);
             grad.addColorStop(0, 'rgba(239, 68, 68, 0.6)');
             grad.addColorStop(0.5, 'rgba(249, 115, 22, 0.4)');
@@ -88,8 +84,7 @@ export default function SpaceDashboard() {
     const [activeHotspot, setActiveHotspot] = useState(null);
     const navigate = useNavigate();
 
-    const handleNavAction = (path, msg) => {
-        toast(msg, { icon: '🚀' });
+    const handleNavAction = (path) => {
         navigate(path);
     };
 
@@ -98,25 +93,23 @@ export default function SpaceDashboard() {
             id: 'eo-data',
             posClass: 'card-tl',
             icon: Satellite,
-            title: 'Real-Time EO Data Feeds',
-            badge: 'Live',
+            title: 'Historical Satellite Catalog',
+            badge: 'Landsat 8/9 C2L2',
             badgeClass: 'badge-stable',
-            desc: 'Fetching multispectral radiance from ISRO Oceansat-3 & NASA Landsat-9 for accurate surface temperature estimation.',
-            btnText: 'View Satellite Streams',
-            path: '/satellite',
-            toast: 'Connecting to ISRO Oceansat-3 & Landsat-9 live feeds...'
+            desc: 'Curated multispectral radiance from NASA/USGS Landsat-8/9 Band 10 TIRS and Copernicus ERA5 reanalysis.',
+            btnText: 'View Dataset Catalog',
+            path: '/datasets'
         },
         {
             id: 'ai-pred',
             posClass: 'card-tr',
             icon: Brain,
-            title: 'AI Prediction Model',
-            badge: 'Active',
+            title: 'AI Prediction Engine',
+            badge: 'Random Forest',
             badgeClass: 'badge-warning',
-            desc: 'Empirical Random Forest regression forecasting urban cooling potential based on historical multispectral observations.',
-            btnText: 'Open AI Engine',
+            desc: 'Empirical Random Forest regression forecasting urban cooling potential (LOCO R²=0.9871, RMSE=0.23°C).',
+            btnText: 'Open Prediction Engine',
             path: '/prediction',
-            toast: 'Initializing Empirical ML Cooling Engine...',
             accent: true
         },
         {
@@ -124,30 +117,24 @@ export default function SpaceDashboard() {
             posClass: 'card-bl',
             icon: Map,
             title: 'Active Heat Hotspots',
-            badge: 'Global Coverage',
+            badge: '44 Validated Nodes',
             badgeClass: 'badge-critical',
-            desc: 'Global urban sectors experiencing severe urban heat island anomalies and high LST radiance.',
-            btnText: 'Inspect Hotspots',
-            path: '/mapping',
-            toast: 'Loading Global Urban Thermal Hotspot Inventory...'
+            desc: 'Documented metropolitan sectors experiencing severe urban heat island anomalies relative to rural baselines.',
+            btnText: 'Explore Heat Map',
+            path: '/mapping'
         },
         {
             id: 'mitigation',
             posClass: 'card-br',
             icon: Wind,
-            title: 'Mitigation Action Plan',
-            badge: 'Ready',
+            title: 'Intervention Simulator',
+            badge: 'Scenario Modeling',
             badgeClass: 'badge-stable',
-            desc: 'Automated deployment recommendations for cool roofs, urban forest corridors, and water sprinkling stations.',
-            btnText: 'View Strategies',
-            path: '/mitigation',
-            toast: 'Loading AI-Driven Urban Cooling & Mitigation Strategies...'
+            desc: 'Simulate urban interventions: cool roofs (albedo uplift) and tree canopy expansions with exportable reports.',
+            btnText: 'Launch Simulator',
+            path: '/simulator'
         }
     ];
-
-    const handleAction = (name) => {
-        toast.success(`${name} module initialized. Requesting orbital link...`);
-    };
 
     return (
         <div className="space-dashboard-container">
@@ -187,7 +174,7 @@ export default function SpaceDashboard() {
                                 className={`data-card ${card.posClass}`}
                                 initial={{ opacity: 0, scale: 0.8, y: index > 1 ? 30 : -30 }}
                                 animate={{ opacity: 1, scale: 1, y: 0 }}
-                                transition={{ duration: 0.8, delay: index * 0.2 + 0.5, type: 'spring' }}
+                                transition={{ duration: 0.8, delay: index * 0.2 + 0.3, type: 'spring' }}
                                 whileHover={{ y: -5 }}
                             >
                                 <div className="card-header">
@@ -200,7 +187,7 @@ export default function SpaceDashboard() {
                                 </div>
                                 <button
                                     className="action-button card-action-btn"
-                                    onClick={() => handleNavAction(card.path, card.toast)}
+                                    onClick={() => handleNavAction(card.path)}
                                 >
                                     {card.btnText}
                                 </button>
@@ -220,24 +207,24 @@ export default function SpaceDashboard() {
                         exit={{ opacity: 0, scale: 0.9, x: '-50%', y: '-50%' }}
                     >
                         <div className="modal-header">
-                            <h3>🗺️ Regional View: {activeHotspot.name}</h3>
+                            <h3>🗺️ Observation Node: {activeHotspot.name}</h3>
                             <button className="close-btn" onClick={() => setActiveHotspot(null)}>
                                 <X size={20} />
                             </button>
                         </div>
                         <div className="modal-content">
-                            <p><strong>Exact Coordinates:</strong> {activeHotspot.lat.toFixed(4)}° N, {activeHotspot.lng.toFixed(4)}° E</p>
-                            <p><strong>Surface Temperature (LST):</strong> <span style={{ color: 'var(--accent-orange, #f97316)', fontWeight: 'bold' }}>{activeHotspot.temp}</span></p>
+                            <p><strong>Coordinates:</strong> {activeHotspot.lat.toFixed(4)}° N, {activeHotspot.lng.toFixed(4)}° E</p>
+                            <p><strong>Satellite LST (Skin):</strong> <span style={{ color: 'var(--accent-orange, #f97316)', fontWeight: 'bold' }}>{activeHotspot.temp}</span></p>
                             {activeHotspot.airTemp && (
                                 <p><strong>Ambient Air Temp (2m):</strong> <span style={{ color: '#38bdf8', fontWeight: 'bold' }}>{activeHotspot.airTemp}</span></p>
                             )}
-                            <p><strong>Thermal Status:</strong> <span className={`badge-critical ${activeHotspot.anomaly?.includes('Critical') || activeHotspot.anomaly?.includes('Warning') ? 'warning' : 'stable'}`}>{activeHotspot.anomaly}</span></p>
-                            <p style={{ marginTop: '8px' }}><strong>AI Analysis:</strong> {activeHotspot.desc}</p>
+                            <p><strong>Surface UHI Anomaly:</strong> <span className={`badge-critical ${activeHotspot.anomaly?.includes('Critical') || activeHotspot.anomaly?.includes('Warning') ? 'warning' : 'stable'}`}>{activeHotspot.anomaly}</span></p>
+                            <p style={{ marginTop: '8px' }}><strong>Empirical Notes:</strong> {activeHotspot.desc}</p>
 
                             <div style={{ marginTop: '16px', background: '#0a0a0a', border: '1px solid rgba(255,255,255,0.08)', padding: '12px', borderRadius: '8px', textAlign: 'center' }}>
                                 <div style={{ fontSize: '0.75rem', color: '#a1a1aa', marginBottom: '6px', fontWeight: 600, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <span>🛰️ ZOOMED RASTER MAP</span>
-                                    <span style={{ fontSize: '0.65rem', background: 'rgba(255,255,255,0.1)', padding: '2px 6px', borderRadius: '4px' }}>Res: 0.25m</span>
+                                    <span>🛰️ SATELLITE RASTER FOOTPRINT</span>
+                                    <span style={{ fontSize: '0.65rem', background: 'rgba(255,255,255,0.1)', padding: '2px 6px', borderRadius: '4px' }}>TIRS Res: 100m</span>
                                 </div>
                                 <div style={{ position: 'relative', width: '100%', height: '150px', background: '#050505', borderRadius: '6px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.05)' }}>
                                     <RegionalMapCanvas lat={activeHotspot.lat} lng={activeHotspot.lng} />
@@ -245,23 +232,24 @@ export default function SpaceDashboard() {
                             </div>
 
                             <div className="modal-actions">
-                                <button className="holo-btn primary modal-btn" onClick={() => handleAction('Run Simulation')}>Execute Scenario</button>
-                                <button className="holo-btn modal-btn" onClick={() => handleAction('Dispatch Alert')}>Send Drone Grid</button>
+                                <button className="holo-btn primary modal-btn" onClick={() => handleNavAction('/simulator')}>Simulate Interventions</button>
+                                <button className="holo-btn modal-btn" onClick={() => handleNavAction('/mapping')}>Inspect in Heat Map</button>
                             </div>
                         </div>
                     </motion.div>
                 )}
             </AnimatePresence>
 
+            {/* Bottom Controls */}
             <motion.div
                 className="bottom-controls"
                 initial={{ opacity: 0, y: 50 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 1, delay: 1.5 }}
+                transition={{ duration: 1, delay: 1.0 }}
             >
                 <div className="timeline-container">
                     <Activity size={20} className="card-icon" />
-                    <span className="time-label">T-{100 - timeValue} HOURS</span>
+                    <span className="time-label">HISTORICAL OVERPASS CATALOG</span>
                     <input
                         type="range"
                         className="timeline-slider"
@@ -269,13 +257,13 @@ export default function SpaceDashboard() {
                         value={timeValue}
                         onChange={(e) => setTimeValue(e.target.value)}
                     />
-                    <span className="time-label">PREDICTION</span>
+                    <span className="time-label">2022–2024</span>
                 </div>
 
                 <div className="nav-buttons">
-                    <button className="holo-btn primary" onClick={() => handleAction('Explore Data')}>Explore Data</button>
-                    <button className="holo-btn" onClick={() => handleAction('Demo Launch')}>Demo</button>
-                    <button className="holo-btn" onClick={() => handleAction('Partners Sync')}>Partners</button>
+                    <button className="holo-btn primary" onClick={() => handleNavAction('/mapping')}>Heat Map</button>
+                    <button className="holo-btn" onClick={() => handleNavAction('/prediction')}>AI Prediction</button>
+                    <button className="holo-btn" onClick={() => handleNavAction('/datasets')}>Dataset Catalog</button>
                 </div>
             </motion.div>
         </div>

@@ -69,10 +69,27 @@ class ApiService {
     }
 
     /**
+     * Health / Diagnostic Status Check
+     */
+    async getHealth() {
+        return this.request('/health');
+    }
+
+    /**
      * Run empirical thermal mitigation prediction
      */
     async predictCooling(payload) {
         return this.request('/api/v1/ai/predict', {
+            method: 'POST',
+            body: JSON.stringify(payload)
+        });
+    }
+
+    /**
+     * Compare baseline against intervention scenarios
+     */
+    async compareInterventions(payload) {
+        return this.request('/api/v1/interventions/compare', {
             method: 'POST',
             body: JSON.stringify(payload)
         });

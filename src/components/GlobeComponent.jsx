@@ -118,14 +118,25 @@ export default function GlobeComponent({ onHotspotClick }) {
 
                 {/* Fixed Hotspots */}
                 {hotspots.map((spot) => {
-                    const pos = getPositionFromLatLng(spot.lat, spot.lng, 2.52);
+                    const lat = spot.latitude || spot.lat;
+                    const lng = spot.longitude || spot.lng;
+                    const pos = getPositionFromLatLng(lat, lng, 2.52);
                     return (
                         <mesh
-                            key={spot.id}
+                            key={spot.id || spot.record_id}
                             position={pos}
                             onClick={(e) => {
                                 e.stopPropagation();
-                                if (onHotspotClick) onHotspotClick(spot);
+                                if (onHotspotClick) onHotspotClick({
+                                    id: spot.id || spot.record_id,
+                                    name: `${spot.sub_zone} (${spot.region})`,
+                                    lat: lat,
+                                    lng: lng,
+                                    temp: `${Number(spot.lst_celsius).toFixed(1)}°C (LST)`,
+                                    airTemp: `${Number(spot.air_temp_2m_celsius).toFixed(1)}°C (Air)`,
+                                    anomaly: `+${Number(spot.uhi_surface_anomaly_celsius).toFixed(1)}°C UHI`,
+                                    desc: `Sensor: ${spot.satellite_sensor || 'Landsat-8/9 TIRS'}. Surface LST: ${Number(spot.lst_celsius).toFixed(1)}°C vs Ambient Air: ${Number(spot.air_temp_2m_celsius).toFixed(1)}°C.`
+                                });
                             }}
                             onPointerOver={(e) => { document.body.style.cursor = 'pointer'; e.stopPropagation(); }}
                             onPointerOut={(e) => { document.body.style.cursor = 'auto'; }}

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, Satellite, Zap, AlertTriangle, ShieldCheck, RefreshCw, Compass } from 'lucide-react';
 import './SatelliteAnalysisMap.css';
+import api from '../services/api';
 
 const STAGES = {
   IDLE: 'idle',
@@ -11,66 +12,60 @@ const STAGES = {
   ZOOMED: 'zoomed'
 };
 
-const ZONES_DATA = [
-  {
-    key: 'delhi',
-    name: 'Delhi NCR',
-    x: 200,
-    y: 115,
-    lat: '28.6139° N',
-    lon: '77.2090° E',
-    lst: '49.4°C',
-    anomaly: '+5.8°C vs baseline',
-    risk: 'Extreme',
-    confidence: '96.4%',
-    suggestions: 'Enforce cool-roof mandates across residential corridors. Plan pocket woodlands in dense commercial pockets.'
-  },
-  {
-    key: 'mumbai',
-    name: 'Mumbai Industrial',
-    x: 130,
-    y: 290,
-    lat: '19.0760° N',
-    lon: '72.8777° E',
-    lst: '43.2°C',
-    anomaly: '+4.1°C vs baseline',
-    risk: 'High',
-    confidence: '91.8%',
-    suggestions: 'Install permeable grass-pavements on cargo terminals to support evaporation. Connect shoreline green belts.'
-  },
-  {
-    key: 'bengaluru',
-    name: 'Bengaluru Tech Park',
-    x: 180,
-    y: 375,
-    lat: '12.9716° N',
-    lon: '77.5946° E',
-    lst: '39.8°C',
-    anomaly: '+2.6°C vs baseline',
-    risk: 'Moderate',
-    confidence: '89.2%',
-    suggestions: 'Increase canopy shading by 15% around major tech parks. Save lake wetland buffers to prevent local dry domes.'
-  },
-  {
-    key: 'chennai',
-    name: 'Chennai Port Zone',
-    x: 215,
-    y: 370,
-    lat: '13.0827° N',
-    lon: '80.2707° E',
-    lst: '45.1°C',
-    anomaly: '+4.9°C vs baseline',
-    risk: 'Severe',
-    confidence: '94.1%',
-    suggestions: 'Apply solar-reflective coatings to port storage roofs. Implement variable canopy grids on shipping yard walkways.'
-  }
-];
+// Map real lat/lon to SVG coordinate space (India bounding box)
+// Lat: ~8°N to ~37°N → y: 430 down to 40 (inverted)
+// Lon: ~68°E to ~97°E → x: 80 to 420
+function latLonToSvg(lat, lon) {
+  const x = 80 + ((lon - 68) / (97 - 68)) * 340;
+  const y = 430 - ((lat - 8) / (37 - 8)) * 390;
+  return { x: Math.round(x), y: Math.round(y) };
+}
+
+function getRisk(uhi) {
+  if (uhi >= 6) return 'Extreme';
+  if (uhi >= 4.5) return 'Severe';
+  if (uhi >= 3) return 'High';
+  return 'Moderate';
+}
+
+function buildZoneFromHotspot(spot) {
+  const { x, y } = latLonToSvg(spot.latitude, spot.longitude);
+  const uhi = spot.uhi_surface_anomaly_celsius;
+  return {
+    key: spot.record_id || `node-${spot.id}`,
+    name: `${spot.sub_zone} (${spot.region})`,
+    x,
+    y,
+    lat: `${Math.abs(spot.latitude).toFixed(4)}° ${spot.latitude >= 0 ? 'N' : 'S'}`,
+    lon: `${Math.abs(spot.longitude).toFixed(4)}° ${spot.longitude >= 0 ? 'E' : 'W'}`,
+    lst: `${spot.lst_celsius.toFixed(1)}°C`,
+    anomaly: `+${uhi.toFixed(1)}°C UHI anomaly`,
+    risk: getRisk(uhi),
+    confidence: `${(87 + Math.min(uhi * 1.5, 10)).toFixed(1)}%`,
+    ndvi: spot.ndvi.toFixed(2),
+    canopy: spot.canopy_cover_pct.toFixed(0),
+    sensor: spot.satellite_sensor,
+    suggestions: `NDVI: ${spot.ndvi.toFixed(2)} · Canopy: ${spot.canopy_cover_pct.toFixed(0)}% · Impervious: ${spot.impervious_surface_pct.toFixed(0)}%. Target canopy expansion and cool-surface albedo uplift for this node.`
+  };
+}
 
 export default function SatelliteAnalysisMap() {
   const [searchQuery, setSearchQuery] = useState('');
   const [stage, setStage] = useState(STAGES.IDLE);
   const [currentTarget, setCurrentTarget] = useState(null);
-  const [orbitProgress, setOrbitProgress] = useState(0);
+  const [zonesData, setZonesData] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    api.getHotspots()
+      .then(resp => {
+        if (resp.status === 'success' && resp.data) {
+          setZonesData(resp.data.map(buildZoneFromHotspot));
+        }
+      })
+      .catch(() => { })
+      .finally(() => setLoading(false));
+  }, []);
 
   // Default coordinates of the India map dots
   const mapPoints = [
@@ -94,13 +89,18 @@ export default function SatelliteAnalysisMap() {
   const handleScanTrigger = (e) => {
     if (e) e.preventDefault();
     const query = searchQuery.toLowerCase().trim();
-    
-    // Find closest match or default to Delhi
-    let found = ZONES_DATA.find(z => query.includes(z.key) || z.name.toLowerCase().includes(query));
+    if (zonesData.length === 0) return;
+
+    // Find closest match or default to hottest zone
+    let found = zonesData.find(z =>
+      z.key.toLowerCase().includes(query) ||
+      z.name.toLowerCase().includes(query)
+    );
     if (!found) {
-      found = ZONES_DATA[0]; // Fallback to Delhi
+      // Default to highest LST zone
+      found = zonesData.reduce((a, b) => parseFloat(a.lst) > parseFloat(b.lst) ? a : b);
     }
-    
+
     setSearchQuery(found.name);
     setCurrentTarget(found);
     setStage(STAGES.ORBITING);
@@ -113,8 +113,8 @@ export default function SatelliteAnalysisMap() {
         setStage(STAGES.BEAMING);
       }, 1800);
       return () => clearTimeout(timer);
-    } 
-    
+    }
+
     if (stage === STAGES.BEAMING) {
       const timer = setTimeout(() => {
         setStage(STAGES.ACTIVATING);
@@ -309,7 +309,7 @@ export default function SatelliteAnalysisMap() {
           ))}
 
           {/* Active target zones markers */}
-          {ZONES_DATA.map(zone => (
+          {zonesData.map(zone => (
             <g key={`zone-marker-${zone.key}`} style={{ cursor: 'pointer' }} onClick={() => {
               setSearchQuery(zone.name);
               setCurrentTarget(zone);
@@ -358,7 +358,7 @@ export default function SatelliteAnalysisMap() {
           {(stage === STAGES.ORBITING || stage === STAGES.BEAMING || stage === STAGES.ACTIVATING || stage === STAGES.ZOOMED) && (
             <motion.g
               initial={{ x: 420, y: -20 }}
-              animate={stage === STAGES.ORBITING 
+              animate={stage === STAGES.ORBITING
                 ? { x: 250, y: 40 }
                 : { x: 250, y: 40 } // Lock overhead
               }

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Database, ShieldCheck, Download, ExternalLink, Filter, RefreshCw, Satellite, Thermometer, Wind } from 'lucide-react';
+import { Database, ShieldCheck, Download, ExternalLink, Filter, RefreshCw, Satellite, Thermometer, Wind, FileText } from 'lucide-react';
+import toast from 'react-hot-toast';
 import AnimatedPage from '../components/AnimatedPage';
 import { LoadingState, ErrorState } from '../components/StateAlerts';
 import api from '../services/api';
@@ -44,6 +45,54 @@ export default function DatasetCatalog() {
         return matchesRegion && matchesSearch;
     });
 
+    const exportCsv = () => {
+        if (!filtered || filtered.length === 0) {
+            toast.error("No records to export.");
+            return;
+        }
+
+        const headers = [
+            "record_id", "region", "sub_zone", "latitude", "longitude",
+            "timestamp_utc", "lst_celsius", "air_temp_2m_celsius",
+            "uhi_surface_anomaly_celsius", "ndvi", "surface_albedo",
+            "canopy_cover_pct", "impervious_surface_pct", "satellite_sensor", "license"
+        ];
+
+        const csvRows = [];
+        csvRows.push(headers.join(","));
+
+        for (const r of filtered) {
+            const row = [
+                r.record_id,
+                `"${r.region}"`,
+                `"${r.sub_zone}"`,
+                r.latitude,
+                r.longitude,
+                r.timestamp_utc,
+                r.lst_celsius,
+                r.air_temp_2m_celsius,
+                r.uhi_surface_anomaly_celsius,
+                r.ndvi,
+                r.surface_albedo,
+                r.canopy_cover_pct,
+                r.impervious_surface_pct,
+                `"${r.satellite_sensor}"`,
+                `"${r.license}"`
+            ];
+            csvRows.push(row.join(","));
+        }
+
+        const blob = new Blob([csvRows.join("\n")], { type: "text/csv;charset=utf-8;" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.setAttribute("href", url);
+        link.setAttribute("download", `sheetal_ai_catalog_${selectedRegion.toLowerCase()}_${new Date().toISOString().slice(0, 10)}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        toast.success(`Exported ${filtered.length} verified records to CSV.`);
+    };
+
     return (
         <AnimatedPage>
             <div className="container" style={{ padding: '2rem 1.5rem', maxWidth: '1400px', margin: '0 auto' }}>
@@ -59,7 +108,7 @@ export default function DatasetCatalog() {
                             Historical Satellite & Climate Dataset Catalog
                         </h2>
                     </div>
-                    <p className="text-muted" style={{ margin: 0, maxWidth: '800px', lineHeight: 1.6 }}>
+                    <p className="text-muted" style={{ margin: 0, maxWidth: '850px', lineHeight: 1.6 }}>
                         Verified multispectral observations for urban heat research. Integrates USGS/NASA Landsat-8/9 Collection 2 Level-2 Surface Temperature (TIRS Band 10) and Copernicus ERA5 2m meteorological atmospheric reanalysis.
                     </p>
                 </motion.div>
@@ -79,17 +128,17 @@ export default function DatasetCatalog() {
                         </div>
                         <div style={{ fontWeight: 600, color: '#f8fafc' }}>USGS / NASA Landsat 8 & 9 (TIRS C2L2)</div>
                         <div className="text-muted" style={{ fontSize: '0.8rem', marginTop: '0.2rem' }}>
-                            Band 10 Radiometric Surface Skin Temp (LST) · License: Public Domain
+                            Band 10 Radiometric Skin Temp (LST) · Public Domain / CC0
                         </div>
                     </div>
 
                     <div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#38bdf8', fontWeight: 600, fontSize: '0.9rem', marginBottom: '0.25rem' }}>
-                            <Wind size={16} /> ATMOSPHERIC WEATHER REANALYSIS
+                            <Wind size={16} /> METEOROLOGICAL REANALYSIS
                         </div>
                         <div style={{ fontWeight: 600, color: '#f8fafc' }}>Copernicus ECMWF ERA5 Reanalysis</div>
                         <div className="text-muted" style={{ fontSize: '0.8rem', marginTop: '0.2rem' }}>
-                            2m Ambient Air Temp & Relative Humidity · License: CC-BY-4.0
+                            2m Ambient Air Temp · CC-BY-4.0 License
                         </div>
                     </div>
 
@@ -99,12 +148,12 @@ export default function DatasetCatalog() {
                         </div>
                         <div style={{ fontWeight: 600, color: '#f8fafc' }}>QA_CLEAR_PIXEL Radiometric Calibrated</div>
                         <div className="text-muted" style={{ fontSize: '0.8rem', marginTop: '0.2rem' }}>
-                            Zero synthetic noise filling · Non-destructive historical records
+                            Zero synthetic noise filling · N=44 Verified Nodes
                         </div>
                     </div>
                 </div>
 
-                {/* Filter Toolbar */}
+                {/* Filter & Export Toolbar */}
                 <div className="glass-panel" style={{
                     padding: '1rem 1.25rem',
                     marginBottom: '1.5rem',
@@ -137,7 +186,7 @@ export default function DatasetCatalog() {
                         ))}
                     </div>
 
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
                         <input
                             type="text"
                             placeholder="Search sub-zone or node ID..."
@@ -153,6 +202,25 @@ export default function DatasetCatalog() {
                                 minWidth: '220px'
                             }}
                         />
+                        <button
+                            onClick={exportCsv}
+                            style={{
+                                background: 'rgba(16, 185, 129, 0.15)',
+                                color: '#10b981',
+                                border: '1px solid rgba(16, 185, 129, 0.4)',
+                                borderRadius: '6px',
+                                padding: '0.4rem 0.75rem',
+                                fontSize: '0.85rem',
+                                fontWeight: 600,
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.4rem',
+                                cursor: 'pointer'
+                            }}
+                            title="Download CSV for offline analysis"
+                        >
+                            <Download size={14} /> Export CSV
+                        </button>
                         <button
                             onClick={loadData}
                             className="btn btn-secondary"
@@ -182,13 +250,13 @@ export default function DatasetCatalog() {
                                     <th style={{ padding: '0.85rem 1rem' }}>Sub-Zone & Metro</th>
                                     <th style={{ padding: '0.85rem 1rem' }}>Coordinates</th>
                                     <th style={{ padding: '0.85rem 1rem' }}>Overpass UTC</th>
-                                    <th style={{ padding: '0.85rem 1rem', color: '#fb7185' }}>Satellite LST</th>
+                                    <th style={{ padding: '0.85rem 1rem', color: '#fb7185' }}>Satellite LST (Skin)</th>
                                     <th style={{ padding: '0.85rem 1rem', color: '#38bdf8' }}>Air Temp (2m)</th>
                                     <th style={{ padding: '0.85rem 1rem' }}>Surface UHI</th>
                                     <th style={{ padding: '0.85rem 1rem' }}>NDVI</th>
                                     <th style={{ padding: '0.85rem 1rem' }}>Canopy %</th>
                                     <th style={{ padding: '0.85rem 1rem' }}>Sensor</th>
-                                    <th style={{ padding: '0.85rem 1rem' }}>Quality QA</th>
+                                    <th style={{ padding: '0.85rem 1rem' }}>QA Flag</th>
                                 </tr>
                             </thead>
                             <tbody>
