@@ -4,7 +4,7 @@ Uses direct handler execution compatible with Python 3.14.
 """
 
 import pytest
-from backend.main import read_root, health_check, load_artifacts
+from backend.main import read_root, health_check, api_health_check, load_artifacts
 
 
 @pytest.fixture(scope="module", autouse=True)
@@ -18,15 +18,14 @@ def test_root_endpoint():
     assert "version" in data
     assert data["ml_ready"] is True
     assert data["records_count"] == 44
-    assert data["health"] == "/health"
+    assert data["documentation"] == "/docs"
 
 
 def test_health_endpoint():
     data = health_check()
-    assert data["status"] == "healthy"
-    assert "timestamp_utc" in data
-    assert data["services"]["ml_model_loaded"] is True
-    assert data["services"]["dataset_loaded"] is True
-    assert data["services"]["dataset_records"] == 44
-    assert data["services"]["database_connected"] is True
-    assert data["services"]["database_records"] == 44
+    assert data == {"status": "ok"}
+
+
+def test_api_v1_health_endpoint():
+    data = api_health_check()
+    assert data == {"status": "ok"}

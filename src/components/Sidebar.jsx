@@ -48,10 +48,11 @@ export default function Sidebar() {
         const checkStatus = async () => {
             try {
                 const data = await api.getStatus();
-                if (data && data.status === 'online') {
-                    setApiStatus('online');
-                    setModelReady(data.ml_ready || false);
-                    setRecordCount(data.records_count || 0);
+                if (data && typeof data.status === 'string') {
+                    const nextStatus = data.status === 'online' ? 'online' : 'degraded';
+                    setApiStatus(nextStatus);
+                    setModelReady(data.ml_ready ?? false);
+                    setRecordCount(data.records_count ?? 0);
                 } else {
                     setApiStatus('degraded');
                 }
