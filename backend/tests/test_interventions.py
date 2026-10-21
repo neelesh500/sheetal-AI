@@ -46,10 +46,14 @@ def test_intervention_comparison_success():
     report = data["report"]
     assert "baseline" in report
     assert len(report["scenarios"]) == 2
+    assert "methodology" in report
 
     sc1 = report["scenarios"][0]
+    assert sc1["scenario_id"] == "sc-1"
     assert sc1["scenario_name"] == "Cool Roofs Initiative"
     assert "net_additional_cooling_celsius" in sc1
+    assert "empirical_error_bound_celsius" in sc1
+    assert "disclaimer" in sc1
 
     sc2 = report["scenarios"][1]
     assert sc2["scenario_name"] == "Urban Forestry & Pocket Parks"
