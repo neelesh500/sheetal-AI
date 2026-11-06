@@ -37,6 +37,7 @@ const getLayerVisuals = (spot, layer) => {
             else if (val >= 0.10) color = '#ca8a04';
             return {
                 color,
+                strokeColor: color,
                 primaryLabel: 'NDVI Index',
                 primaryValue: val.toFixed(2),
                 secondaryLabel: 'Canopy Cover',
@@ -52,6 +53,7 @@ const getLayerVisuals = (spot, layer) => {
             else if (val >= 1.0) color = '#84cc16';
             return {
                 color,
+                strokeColor: color,
                 primaryLabel: 'Surface UHI Anomaly',
                 primaryValue: `+${val.toFixed(1)}°C`,
                 secondaryLabel: 'Atmospheric UHI',
@@ -83,6 +85,7 @@ const getLayerVisuals = (spot, layer) => {
             else if (lst >= 40.0) { color = '#f59e0b'; risk = 'Moderate'; }
             return {
                 color,
+                strokeColor: color,
                 primaryLabel: 'Heat Stress Risk',
                 primaryValue: risk,
                 secondaryLabel: 'Skin LST',
@@ -99,6 +102,7 @@ const getLayerVisuals = (spot, layer) => {
             else if (val >= 30.0) color = '#10b981';
             return {
                 color,
+                strokeColor: color,
                 primaryLabel: 'Satellite LST (Skin)',
                 primaryValue: `${val.toFixed(1)}°C`,
                 secondaryLabel: 'Ambient Air (2m)',
@@ -135,13 +139,6 @@ export default function LeafletMap({ selectedRegion = null, onSelectNode = null,
     useEffect(() => {
         fetchHotspots();
     }, [selectedRegion]);
-
-    const getMarkerColor = (lst) => {
-        if (lst >= 50.0) return '#e11d48'; // Extreme skin heat (>50°C)
-        if (lst >= 45.0) return '#f97316'; // High heat (45-50°C)
-        if (lst >= 40.0) return '#f59e0b'; // Moderate (40-45°C)
-        return '#10b981'; // Cool baseline (<40°C)
-    };
 
     return (
         <div style={{ height: '480px', width: '100%', borderRadius: '8px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.1)', position: 'relative' }}>
@@ -180,13 +177,18 @@ export default function LeafletMap({ selectedRegion = null, onSelectNode = null,
                 <MapViewSync lat={center[0]} lon={center[1]} zoom={5} />
 
                 {hotspots.map((spot) => {
-                    const color = getMarkerColor(spot.lst_celsius);
+                    const visual = getLayerVisuals(spot, activeLayer);
                     return (
                         <CircleMarker
-                            key={spot.id}
+                            key={`${spot.id}-${activeLayer}`}
                             center={[spot.latitude, spot.longitude]}
                             radius={14}
-                            pathOptions={{ color: color, fillColor: color, fillOpacity: 0.65, weight: 2 }}
+                            pathOptions={{
+                                color: visual.strokeColor || visual.color,
+                                fillColor: visual.color,
+                                fillOpacity: 0.75,
+                                weight: 2
+                            }}
                             eventHandlers={{
                                 click: () => {
                                     if (onSelectNode) onSelectNode(spot);
@@ -198,24 +200,53 @@ export default function LeafletMap({ selectedRegion = null, onSelectNode = null,
                                     <strong style={{ fontSize: '0.95rem', display: 'block', borderBottom: '1px solid #cbd5e1', paddingBottom: '4px', marginBottom: '6px' }}>
                                         {spot.sub_zone} ({spot.region})
                                     </strong>
+
+                                    {/* Active Layer Highlight Card */}
+                                    <div style={{
+                                        background: 'rgba(15, 23, 42, 0.06)',
+                                        borderLeft: `4px solid ${visual.color}`,
+                                        padding: '6px 8px',
+                                        marginBottom: '8px',
+                                        borderRadius: '0 4px 4px 0'
+                                    }}>
+                                        <span style={{ fontSize: '0.7rem', textTransform: 'uppercase', color: '#64748b', fontWeight: 700, display: 'block' }}>
+                                            LAYER: {activeLayer.toUpperCase()}
+                                        </span>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '2px' }}>
+                                            <span style={{ fontWeight: 600 }}>{visual.primaryLabel}:</span>
+                                            <strong style={{ color: visual.color, fontSize: '0.95rem' }}>{visual.primaryValue}</strong>
+                                        </div>
+                                        {visual.secondaryLabel && (
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '2px' }}>
+                                                <span style={{ fontSize: '0.78rem', color: '#64748b' }}>{visual.secondaryLabel}:</span>
+                                                <span style={{ fontSize: '0.78rem', fontWeight: 600 }}>{visual.secondaryValue}</span>
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    {/* Full Observation Metrics */}
                                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '3px' }}>
                                         <span style={{ color: '#64748b' }}>Satellite LST (Skin):</span>
-                                        <strong style={{ color: '#e11d48' }}>{spot.lst_celsius.toFixed(1)}°C</strong>
+                                        <strong style={{ color: '#e11d48' }}>{spot.lst_celsius?.toFixed(1)}°C</strong>
                                     </div>
                                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '3px' }}>
                                         <span style={{ color: '#64748b' }}>Ambient Air Temp (2m):</span>
-                                        <strong style={{ color: '#0284c7' }}>{spot.air_temp_2m_celsius.toFixed(1)}°C</strong>
+                                        <strong style={{ color: '#0284c7' }}>{spot.air_temp_2m_celsius?.toFixed(1)}°C</strong>
                                     </div>
                                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '3px' }}>
                                         <span style={{ color: '#64748b' }}>Surface UHI Anomaly:</span>
-                                        <strong style={{ color: '#f59e0b' }}>+{spot.uhi_surface_anomaly_celsius.toFixed(1)}°C</strong>
+                                        <strong style={{ color: '#f59e0b' }}>+{spot.uhi_surface_anomaly_celsius?.toFixed(1)}°C</strong>
                                     </div>
                                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '3px' }}>
                                         <span style={{ color: '#64748b' }}>NDVI / Canopy %:</span>
-                                        <span>{spot.ndvi.toFixed(2)} / {spot.canopy_cover_pct.toFixed(0)}%</span>
+                                        <span>{spot.ndvi?.toFixed(2)} / {spot.canopy_cover_pct != null ? spot.canopy_cover_pct.toFixed(0) : '0'}%</span>
+                                    </div>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '3px' }}>
+                                        <span style={{ color: '#64748b' }}>Surface Albedo:</span>
+                                        <span>{spot.surface_albedo != null ? spot.surface_albedo.toFixed(2) : 'N/A'}</span>
                                     </div>
                                     <div style={{ fontSize: '0.72rem', color: '#94a3b8', borderTop: '1px solid #e2e8f0', paddingTop: '4px', marginTop: '4px' }}>
-                                        Sensor: {spot.satellite_sensor} · QA: Clear
+                                        Sensor: {spot.satellite_sensor || 'Landsat-8/9'} · QA: Clear
                                     </div>
                                 </div>
                             </Popup>
