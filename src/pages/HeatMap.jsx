@@ -122,7 +122,6 @@ export default function HeatMap() {
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.2 }}
-            key={activeLayer}
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div>
@@ -136,11 +135,15 @@ export default function HeatMap() {
               </span>
             </div>
 
-            <LeafletMap selectedRegion={selectedRegion} onSelectNode={setSelectedNode} />
+            <LeafletMap
+              activeLayer={activeLayer}
+              selectedRegion={selectedRegion}
+              onSelectNode={setSelectedNode}
+            />
 
             <MapLegend
               title={`${layer?.data.title} (${layer?.data.unit || '°C'})`}
-              colorScale={layer?.data.colorScale}
+              colorScale={layer?.data?.colorScale || []}
               unit={layer?.data.unit}
             />
 
@@ -164,14 +167,28 @@ export default function HeatMap() {
               >
                 <div>
                   <strong>{selectedNode.sub_zone}</strong> ({selectedNode.region}) —
-                  <span style={{ color: '#fb7185', fontWeight: 'bold', marginLeft: '6px' }}>
-                    Skin LST: {selectedNode.lst_celsius.toFixed(1)}°C
-                  </span> |
+                  {activeLayer === 'ndvi' && (
+                    <span style={{ color: '#22c55e', fontWeight: 'bold', marginLeft: '6px' }}>
+                      NDVI: {selectedNode.ndvi?.toFixed(2)} (Canopy: {selectedNode.canopy_cover_pct?.toFixed(0)}%) |
+                    </span>
+                  )}
+                  {activeLayer === 'albedo' && (
+                    <span style={{ color: '#cbd5e1', fontWeight: 'bold', marginLeft: '6px' }}>
+                      Albedo: {selectedNode.surface_albedo?.toFixed(2)} (Impervious: {selectedNode.impervious_surface_pct?.toFixed(0)}%) |
+                    </span>
+                  )}
+                  {activeLayer === 'uhi' && (
+                    <span style={{ color: '#f59e0b', fontWeight: 'bold', marginLeft: '6px' }}>
+                      Surface UHI: +{selectedNode.uhi_surface_anomaly_celsius?.toFixed(1)}°C |
+                    </span>
+                  )}
+                  {(activeLayer === 'lst' || activeLayer === 'heatstress') && (
+                    <span style={{ color: '#fb7185', fontWeight: 'bold', marginLeft: '6px' }}>
+                      Skin LST: {selectedNode.lst_celsius?.toFixed(1)}°C |
+                    </span>
+                  )}
                   <span style={{ color: '#38bdf8', marginLeft: '6px' }}>
-                    Air Temp (2m): {selectedNode.air_temp_2m_celsius.toFixed(1)}°C
-                  </span> |
-                  <span style={{ color: '#f59e0b', marginLeft: '6px' }}>
-                    UHI Δ: +{selectedNode.uhi_surface_anomaly_celsius.toFixed(1)}°C
+                    Air Temp (2m): {selectedNode.air_temp_2m_celsius?.toFixed(1)}°C
                   </span>
                 </div>
                 <div style={{ display: 'flex', gap: '0.5rem' }}>

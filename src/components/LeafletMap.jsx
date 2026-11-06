@@ -26,7 +26,89 @@ function MapViewSync({ lat, lon, zoom }) {
     return null;
 }
 
-export default function LeafletMap({ selectedRegion = null, onSelectNode = null }) {
+const getLayerVisuals = (spot, layer) => {
+    switch (layer) {
+        case 'ndvi': {
+            const val = spot.ndvi ?? 0;
+            let color = '#78716c';
+            if (val >= 0.70) color = '#15803d';
+            else if (val >= 0.50) color = '#22c55e';
+            else if (val >= 0.30) color = '#84cc16';
+            else if (val >= 0.10) color = '#ca8a04';
+            return {
+                color,
+                primaryLabel: 'NDVI Index',
+                primaryValue: val.toFixed(2),
+                secondaryLabel: 'Canopy Cover',
+                secondaryValue: `${spot.canopy_cover_pct != null ? spot.canopy_cover_pct.toFixed(0) : '0'}%`,
+            };
+        }
+        case 'uhi': {
+            const val = spot.uhi_surface_anomaly_celsius ?? 0;
+            let color = '#10b981';
+            if (val >= 4.0) color = '#f43f5e';
+            else if (val >= 3.0) color = '#f97316';
+            else if (val >= 2.0) color = '#f59e0b';
+            else if (val >= 1.0) color = '#84cc16';
+            return {
+                color,
+                primaryLabel: 'Surface UHI Anomaly',
+                primaryValue: `+${val.toFixed(1)}°C`,
+                secondaryLabel: 'Atmospheric UHI',
+                secondaryValue: `+${(spot.uhi_air_anomaly_celsius ?? 0).toFixed(1)}°C`,
+            };
+        }
+        case 'albedo': {
+            const val = spot.surface_albedo ?? 0;
+            let color = '#1c1917';
+            if (val >= 0.55) color = '#f8fafc';
+            else if (val >= 0.35) color = '#d6d3d1';
+            else if (val >= 0.20) color = '#a8a29e';
+            else if (val >= 0.10) color = '#57534e';
+            return {
+                color,
+                strokeColor: color === '#1c1917' ? '#94a3b8' : color,
+                primaryLabel: 'Surface Albedo',
+                primaryValue: val.toFixed(2),
+                secondaryLabel: 'Impervious Surface',
+                secondaryValue: `${spot.impervious_surface_pct != null ? spot.impervious_surface_pct.toFixed(0) : '0'}%`,
+            };
+        }
+        case 'heatstress': {
+            const lst = spot.lst_celsius ?? 0;
+            let color = '#10b981';
+            let risk = 'Low';
+            if (lst >= 50.0) { color = '#f43f5e'; risk = 'Extreme'; }
+            else if (lst >= 45.0) { color = '#f97316'; risk = 'High'; }
+            else if (lst >= 40.0) { color = '#f59e0b'; risk = 'Moderate'; }
+            return {
+                color,
+                primaryLabel: 'Heat Stress Risk',
+                primaryValue: risk,
+                secondaryLabel: 'Skin LST',
+                secondaryValue: `${lst.toFixed(1)}°C`,
+            };
+        }
+        case 'lst':
+        default: {
+            const val = spot.lst_celsius ?? 0;
+            let color = '#06b6d4';
+            if (val >= 45.0) color = '#f43f5e';
+            else if (val >= 40.0) color = '#f97316';
+            else if (val >= 35.0) color = '#f59e0b';
+            else if (val >= 30.0) color = '#10b981';
+            return {
+                color,
+                primaryLabel: 'Satellite LST (Skin)',
+                primaryValue: `${val.toFixed(1)}°C`,
+                secondaryLabel: 'Ambient Air (2m)',
+                secondaryValue: `${(spot.air_temp_2m_celsius ?? 0).toFixed(1)}°C`,
+            };
+        }
+    }
+};
+
+export default function LeafletMap({ selectedRegion = null, onSelectNode = null, activeLayer = 'lst' }) {
     const [hotspots, setHotspots] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
